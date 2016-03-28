@@ -3,6 +3,52 @@ from pygame.locals import *
 import numpy as np
 from utils import *
 
+#TODO: Refactor E_* values and E_DATA into Equipment class
+class Equipment:
+    def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
+        self.e_list = starting_equip
+
+    def add(self, e):
+        """Add an equipment item (e) to the equipment list, in the next empty slot.
+
+           Return False if no slots exist or if equipment type being added is invalid."""
+        #Verify e is a valid eqipment type
+        if not self.valid(e):
+            return False
+
+        for n in range( self.length() ):
+            if self.e_list[n] == E_NONE:
+                self.e_list[n] = e
+                return True
+
+        # If we get here, then we didn't find an empty slot
+        return False
+
+    def valid(self, e):
+        if E_NONE == e or E_MAX <= e:
+            return False
+        else:
+            return True
+
+    def add_slots(self, dN=2):
+        for n in range(dN):
+            self.e_list.append( E_NONE )
+
+    def get(self, n):
+        return self.e_list[n]
+
+    def rm(self, n):
+        if E_NONE != self.e_list[n]:
+            self.e_list[n] = E_NONE
+            return True
+        else:
+            return False
+
+    def get_list(self):
+        return self.e_list
+
+    def length(self):
+        return len(self.e_list)
 
 
 class BaseSprite(pygame.sprite.Sprite):
@@ -29,7 +75,8 @@ class BaseSprite(pygame.sprite.Sprite):
 
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
-        self.equipment = None
+        equipment = Equipment()
+        self.equipment = equipment
         self.exp_pts = 0
  
     def get_map_pos(self):
@@ -145,8 +192,8 @@ class Player(BaseSprite):
         self.max_hit_pts = 3
         self.hit_pts = 2
         self.damage = 1    # ability to do damage
-        self.equipment = [E_DAGGER]
-        self.max_equipment = 4
+        equipment = Equipment()
+        self.equipment = equipment
         self.level = 1
         self.powerups = None
         #self.allsprites = None
@@ -162,6 +209,50 @@ class Player(BaseSprite):
             self.change_y = -self.dy
         elif key == pygame.K_DOWN or key == pygame.K_k:
             self.change_y = self.dy
+        elif self.key_is_equip(key):
+            self.use_equipment(key)
+
+    def key_is_move(self, key):
+        if ( key == pygame.K_LEFT  or key == pygame.K_j or
+             key == pygame.K_RIGHT or key == pygame.K_l or
+             key == pygame.K_UP    or key == pygame.K_i or
+             key == pygame.K_DOWN  or key == pygame.K_k ):
+            return True
+        else:
+            return False
+
+    def key_is_equip(self, key):
+        if key >= pygame.K_1 and key <= pygame.K_9:
+            equip_loc = key - pygame.K_1
+            if equip_loc < self.equipment.length():
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def use_equipment(self, key):
+        if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
+            return
+        equip_loc = key - pygame.K_1
+        if VERBOSE:
+            print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(equip_loc) )
+            #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
+        if self.equipment.get(equip_loc):
+            # If we got here, then the eqipment location is something other than none
+            e = self.equipment.get(equip_loc)
+            print( "Player.use_equipment(" +str(key) +"): eqpuipment["+str(equip_loc) +"] = " +str(e) )
+            if E_DAGGER == e or E_FIRE_BOMB == e:
+                key = False
+                while not self.key_is_move(key) and not self.key_is_equip(key) and pygame.K_ESCAPE != key:
+                    if pygame.K_ESCAPE == key:
+                        return
+                    if self.key_is_move(key):
+                        print "TODO: Move the Dagger"
+                        return
+                    if self.key_is_equip(key):
+                        print "TODO: Move the Dagger"
+                        return
  
     def update(self):
         """ Update the player position. """
@@ -199,8 +290,8 @@ class Player(BaseSprite):
             for block in block_hit_list:
                 #if self.allsprites:
                 #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
-                self.equipment.append( block.pu_type )
-                print self.equipment
+                self.equipment.add( block.pu_type )
+                print self.equipment.get_list()
  
  
  
@@ -268,8 +359,8 @@ class Status(pygame.sprite.Sprite):
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
-    def new_level(self):
-        self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+    #def new_level(self):
+    #    self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
  
     def update(self):
         # Make a background
@@ -296,12 +387,13 @@ class Status(pygame.sprite.Sprite):
 
         # Draw Equipment
         width = 25
-        for n in range(self.player.max_equipment):
+        for n in range(self.player.equipment.length()):
             x = n * (width) +SCREEN_W/2 +width/2
             pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
-        for n in range( len(self.player.equipment) ):
-            x = n * (width) +SCREEN_W/2 +width/2
-            self.image.blit(self.equipment_images[self.player.equipment[n]], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        for n in range( self.player.equipment.length() ):
+            if self.player.equipment.get(n):
+                x = n * (width) +SCREEN_W/2 +width/2
+                self.image.blit(self.equipment_images[self.player.equipment.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
         #label = myfont.render(str(self.player.level), 1, GREENISH)
         self.level = self.player.level -1
@@ -322,8 +414,8 @@ class Ladder(pygame.sprite.Sprite):
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
+"""
 class Level(pygame.sprite.Sprite):
-    """ Monsters. Need I say more? """
  
     def __init__(self, x, y):
         super(Level, self).__init__()
@@ -345,6 +437,7 @@ class Level(pygame.sprite.Sprite):
         self.rect.y = y
 
         self.player = None
+"""
 
 
 
