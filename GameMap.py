@@ -1,7 +1,12 @@
 import numpy as np
+#import utils
+from utils import *
+
+
 
 SPACE = 0
 WALL = 1
+LADDER = 2
 
 class game_map():
     def __init__(self, x=10, y=10):
@@ -10,17 +15,17 @@ class game_map():
         self.Y = self.m.shape[1]
         self.setedges(WALL)              # edgewalls not defined yet!!
 
-    def randint(self, maxval=10):
-        n = int(round(maxval * np.random.rand(1)[0]))
-        return n
+    #def randint(self, maxval=10):
+    #    n = int(round(maxval * np.random.rand(1)[0]))
+    #    return n
 
     def setblock(self, x1, y1, x2, y2, t):
         for x in range(x1, x2):
             for y in range(y1, y2):
                 self.m[x,y] = t;
 
-    def setedges(self, v):
-        # Force the edges to be walls
+    def setedges(self, v):    # TODO: rename to finalize() or something?
+        """Force the edges to be walls, and add a ladder"""
         #x = self.m.shape[0]
         #y = self.m.shape[1]
         x = self.X
@@ -29,6 +34,11 @@ class game_map():
         self.m[0:x, y-1] = v
         self.m[0,   0:y] = v
         self.m[x-1, 0:y] = v
+
+        self.ladder = self.randempty()
+        self.m[self.ladder[0], self.ladder[1]] = LADDER
+
+
 
     #def edgewall(self):
     #    self.setedges(self, WALL)
@@ -48,24 +58,24 @@ class game_map():
     def newrandblocks(self, N=10):
         """Create a new map with random blocks of walls"""
         for n in range(N):
-            dx = self.randint(self.X/4)
-            dy = self.randint(self.X/4)
-            x1 = self.randint(self.X)
-            y1 = self.randint(self.X)
+            dx = randint(self.X/4)
+            dy = randint(self.X/4)
+            x1 = randint(self.X)
+            y1 = randint(self.X)
             x2 = self.limitrange(x1 +dx, self.X)
             y2 = self.limitrange(y1 +dy, self.Y)
-            setblock(x1, y1, x2, y2, WALL)
+            self.setblock(x1, y1, x2, y2, WALL)
         self.setedges(WALL)
 
     def newrandsnake(self, N=8, M=5):
         """Create a new map with random blocks of walls"""
         for n in range(N):
-            x = self.limitrange(self.randint(self.X), self.X)
-            y = self.limitrange(self.randint(self.Y), self.Y)
+            x = self.limitrange(randint(self.X), self.X)
+            y = self.limitrange(randint(self.Y), self.Y)
             self.m[x,y] = WALL
-            for m in range( self.randint(M) ):
-                x = self.limitrange(x +self.randint(3) -1, self.X-1)
-                y = self.limitrange(y +self.randint(3) -1, self.Y-1)
+            for m in range( randint(M) ):
+                x = self.limitrange(x +randint(3) -1, self.X-1)
+                y = self.limitrange(y +randint(3) -1, self.Y-1)
                 self.m[x,y] = WALL
         self.setedges(WALL)
         
@@ -110,10 +120,14 @@ class game_map():
     def randempty(self):
         tile = WALL
         while tile != SPACE:
-            x = self.randint(self.X)
+            #if VERBOSE:
+            #    print("game_map.X = " +str(self.X))
+            x = randint(self.X)
             x = self.limitrange(x, self.X)
-            y = self.randint(self.Y)
+            y = randint(self.Y)
             y = self.limitrange(y, self.Y)
-            #print ([x, y, tile])
-            tile = self.m[x, y]
+            tile = int(self.m[x, y])
+            #if VERBOSE:
+            #    print ("game_map.randempty: " +str([x, y, tile, SPACE]) )
         return x,y
+
