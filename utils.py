@@ -43,18 +43,21 @@ M_BALLISTIC = 6         # Attacks do ballistic damage
 
 # Equipment database
 #             Image Name          Damage, ballistic, global, targeting
-E_DATA = [["images/dagger32.png",    1,      True,    False,  False ],
+E_DATA = [[None,                     0,      False,   False,  False ], # Note: first entry is bogus so logic in Player.use_equipment() works
+          ["images/dagger32.png",    1,      True,    False,  False ],
           ["images/firebomb32.png",  2,      True,    False,  False ],
           ["images/firestorm32.png", 1,      False,   True,   False ],
           ["images/freeze32.png",    1,      False,   True,   False ],
           ["images/lightning32.png", 1,      False,   False,  True  ] ]
-E_DAGGER = 0
-E_FIRE_BOMB = 1
-E_FIRESTORM = 2
-#E_FREEZE_BOMB = 3
-E_FREEZE_STORM = 3
-E_LIGHTNING = 4
+E_NONE = 0     # Note: bogus entry for "No equpment"
+E_DAGGER = 1
+E_FIRE_BOMB = 2
+E_FIRESTORM = 3
+#E_FREEZE_BOMB = 4
+E_FREEZE_STORM = 4
+E_LIGHTNING = 5
 # TODO other equipment
+E_MAX = 6
 
 
 PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
