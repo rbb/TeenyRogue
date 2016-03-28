@@ -51,37 +51,6 @@ class BaseSprite(pygame.sprite.Sprite):
         pass
  
 
-    """
-    def collide(self, sprite_group, callback):
-        # Move left/right
-        self.rect.x += self.change_x
- 
-        # Did this update cause us to hit a wall?
-        block_hit_list = pygame.sprite.spritecollide(self, sprite_group, False)
-        for block in block_hit_list:
-            # If we are moving right, set our right side to the left side of
-            # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
- 
- 
-        # Move up/down
-        self.rect.y += self.change_y
- 
-        # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, sprite_group, False)
-        for block in block_hit_list:
- 
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            else:
-                self.rect.top = block.rect.bottom
-    """
-
 
 class Powerup(BaseSprite):
     """ Powerups that the player can grab"""
@@ -89,8 +58,6 @@ class Powerup(BaseSprite):
     def __init__(self, start_pos, pu_type=None):
         # Call the parent's constructor
  
-        PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
-                     "images/freeze32.png", "images/lightning32.png" ]
         #print (str(PU_IMAGES) )
         if (pu_type == None):
             self.pu_type = int(round( np.random.uniform(0, len(PU_IMAGES)-1) ))
@@ -176,21 +143,24 @@ class Player(BaseSprite):
         #self.dy = self.image.get_size()[1]
 
         self.max_hit_pts = 3
-        self.hit_pts = 3
+        self.hit_pts = 2
         self.damage = 1    # ability to do damage
         self.equipment = [E_DAGGER]
+        self.max_equipment = 4
         self.level = 1
+        self.powerups = None
+        #self.allsprites = None
  
     def changepos(self, key):
         self.change_x = 0
         self.change_y = 0
-        if key == pygame.K_LEFT:
+        if key == pygame.K_LEFT or (key == pygame.K_j):
             self.change_x = -self.dx
-        elif key == pygame.K_RIGHT:
+        elif key == pygame.K_RIGHT or key == pygame.K_l:
             self.change_x = self.dx
-        elif key == pygame.K_UP:
+        elif key == pygame.K_UP or key == pygame.K_i:
             self.change_y = -self.dy
-        elif key == pygame.K_DOWN:
+        elif key == pygame.K_DOWN or key == pygame.K_k:
             self.change_y = self.dy
  
     def update(self):
@@ -223,28 +193,41 @@ class Player(BaseSprite):
                 self.rect.top = block.rect.bottom
         self.change_x = 0
         self.change_y = 0
+        
+        if self.powerups:
+            block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+            for block in block_hit_list:
+                #if self.allsprites:
+                #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+                self.equipment.append( block.pu_type )
+                print self.equipment
+ 
  
  
 class Wall(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, scale, fname=None):
         """ Constructor for the wall that the player and monsters can run into. """
         super(Wall, self).__init__()
  
         # Make a blue wall, of the size specified in the parameters
-        self.image = pygame.Surface([width, height])
-        self.image.fill(BLUE)
+        if fname:
+            self.image = pygame.Surface([SCALE, SCALE])
+            self.image.fill(GRAY)
+            #tile = pygame.image.load(fname).convert_alpha()
+            tile = pygame.image.load(fname)
+            self.image.blit(tile, (0,0) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        else:
+            self.image = pygame.Surface([SCALE, SCALE])
+            self.image.fill(BLUE)
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
+        self.rect.y = y*SCALE
+        self.rect.x = x*SCALE
 
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
-    #def update(self):
-    #    super(Wall, self).update()
- 
 class Status(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, player): #, font):
         """ Constructor for the wall that the player and monsters can run into. """
@@ -255,21 +238,40 @@ class Status(pygame.sprite.Sprite):
         self.h = height
         #self.font = font
  
-        self.heart = pygame.image.load('images/heart.png').convert_alpha()
-        #self.heart = self.heart.convert_alpha()
+        #self.heart = pygame.image.load('images/heart.png').convert_alpha()
+        self.heart = pygame.image.load('images/heart.png')
         #self.heart.set_alpha(255)
 
+        #self.empty_heart = pygame.image.load('images/empty_heart.png').convert_alpha()
         self.empty_heart = pygame.image.load('images/empty_heart.png')
-        self.empty_heart = self.empty_heart.convert_alpha()
+
+        self.equipment_images = []
+        for fname in PU_IMAGES:
+            #self.equipment_images.append( pygame.image.load(fname).convert_alpha() )
+            self.equipment_images.append( pygame.image.load(fname) )
+
 
         self.player = player
+
+        self.max_level = 4
+        self.level_images = []
+        for n in range(self.max_level):
+            fname = 'images/level_' +str(n+1) +'.png'
+            #self.level_images.append( pygame.image.load(fname).convert_alpha() )
+            self.level_images.append( pygame.image.load(fname) )
+        self.level=0
+        #self.new_level()
+        #self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
         self.update()
 
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
+    def new_level(self):
+        self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+ 
     def update(self):
-        #super(Status, self).update()
         # Make a background
         self.image = pygame.Surface([self.w, self.h])
         self.image.fill(PURPLE)
@@ -280,20 +282,32 @@ class Status(pygame.sprite.Sprite):
         self.rect.x = self.x
 
         # Now draw Hearts for hit points on top of background
-        width = self.heart.get_size()[0] + 5
+        #width = self.heart.get_size()[0] + 5
+        width = 20
+        y = 0
         for n in range(self.player.max_hit_pts):
-            x = n * (width) + 10
-            y = 10 #5
+            x = n * (width) 
 
-            #TODO: For some reason blitting images onto the background surface looks like shit
-            if n <= self.player.hit_pts:
-                #self.image.blit(self.heart, (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
-                pygame.draw.circle(self.image, RED, (x,y), 5)
+            if n < self.player.hit_pts:
+                self.image.blit(self.heart, (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
             else:
-                #self.image.blit(self.empty_heart, (x,y) ) # area=None, special_flags = 0)
-                pygame.draw.circle(self.image, BLACK, (x,y), 5)
+                self.image.blit(self.empty_heart, (x,y) ) # area=None, special_flags = 0)
+                #pygame.draw.circle(self.image, BLACK, (x,y), 5)
+
+        # Draw Equipment
+        width = 25
+        for n in range(self.player.max_equipment):
+            x = n * (width) +SCREEN_W/2 +width/2
+            pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
+        for n in range( len(self.player.equipment) ):
+            x = n * (width) +SCREEN_W/2 +width/2
+            self.image.blit(self.equipment_images[self.player.equipment[n]], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
         #label = myfont.render(str(self.player.level), 1, GREENISH)
+        self.level = self.player.level -1
+        if self.level > self.max_level -1:
+            self.level = self.max_level -1
+        self.image.blit(self.level_images[self.level], (5, STATUS_H/2 -5) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
 class Ladder(pygame.sprite.Sprite):
     def __init__(self, start_pos):
@@ -308,9 +322,6 @@ class Ladder(pygame.sprite.Sprite):
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
-    #def update(self):
-    #    super(Wall, self).update()
- 
 class Level(pygame.sprite.Sprite):
     """ Monsters. Need I say more? """
  
@@ -335,15 +346,5 @@ class Level(pygame.sprite.Sprite):
 
         self.player = None
 
-    def new_level(self):
-        self.image = self.level_images[self.level]
- 
-    #def update(self):
-        #if self.player:
-        #    if self.level != self.player.level -1:
-        #        self.level = self.player.level -1
-        #        if self.level > self.max_level -1:
-        #            self.level = self.max_level -1
-        #        self.new_level()
 
 
