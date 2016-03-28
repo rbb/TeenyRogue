@@ -8,7 +8,7 @@ MAP_H = 10
 SCALE = 32
 SCREEN_W = SCALE*MAP_W
 SCREEN_H = SCALE*MAP_H
-STATUS_H = 48
+STATUS_H = 64 # 48
 LEVEL_Y = SCREEN_H + STATUS_H/2 +1
  
 # Colors
@@ -16,7 +16,8 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (50, 50, 255)
 RED = (255, 50, 50)
-PURPLE = (64, 0, 64)
+PURPLE_DARK = (64, 32, 64)
+PURPLE = (100, 12, 100)
 GRAY = (128, 128, 128)
 GRAY_25 = (64, 64, 64)
 GRAY_50 = (128, 128, 128)
@@ -54,6 +55,11 @@ E_FIRESTORM = 2
 E_FREEZE_STORM = 3
 E_LIGHTNING = 4
 # TODO other equipment
+
+
+PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
+             "images/freeze32.png", "images/lightning32.png" ]
+
  
 def randint(maxval=1):
     n_float = np.random.uniform(0, maxval-1)
