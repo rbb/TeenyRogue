@@ -125,8 +125,10 @@ while block_hit_monster_list or block_hit_powerup_list:
     if VERBOSE:
         print "Info: Redo player"
 player.walls = wall_list
+player.monsters = monster_list
 player.powerups = powerup_list
 all_sprite_list.add(player)
+player.all_sprites = all_sprite_list
 
 if VERBOSE:
     print "Info: Player Done."
@@ -152,7 +154,6 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        #elif event.type == pygame.KEYDOWN:
         elif event.type == pygame.KEYUP:
             player.changepos(event.key)
             if event.key == pygame.K_q:
