@@ -32,6 +32,7 @@ powerup_list = pygame.sprite.Group()
 monster_list = pygame.sprite.Group()
 wall_list = pygame.sprite.Group()
 floor_list = pygame.sprite.Group()
+ladder_list = pygame.sprite.Group()
 
 #------------------------------------
 # Make the walls. 
@@ -56,11 +57,8 @@ if VERBOSE:
 #------------------------------------
 # Create the Ladder
 ladder = Ladder( gm.ladder )
+ladder_list.add(ladder)
 all_sprite_list.add(ladder)
-
-
-
-
 
 
 #------------------------------------
@@ -124,10 +122,12 @@ while block_hit_monster_list or block_hit_powerup_list:
     block_hit_powerup_list = pygame.sprite.spritecollide(player, powerup_list, False)
     if VERBOSE:
         print "Info: Redo player"
+all_sprite_list.add(player)
+
 player.walls = wall_list
 player.monsters = monster_list
 player.powerups = powerup_list
-all_sprite_list.add(player)
+player.ladders = ladder_list
 player.all_sprites = all_sprite_list
 
 if VERBOSE:
@@ -166,6 +166,10 @@ while not done:
     all_sprite_list.draw(screen)
     pygame.display.flip()
     clock.tick(60)
+
+    if not player.alive():
+        print "Level Complete!"
+        done = True  # TODO: move on to next level instead
  
 pygame.quit()
 
