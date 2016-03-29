@@ -72,6 +72,7 @@ class BaseSprite(pygame.sprite.Sprite):
         self.dx = SCALE
         self.dy = SCALE
         self.walls = None
+        self.monsters = None
 
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
@@ -102,17 +103,106 @@ class BaseSprite(pygame.sprite.Sprite):
 class Powerup(BaseSprite):
     """ Powerups that the player can grab"""
 
-    def __init__(self, start_pos, pu_type=None):
+    def __init__(self, start_pos, e_type=None):
         # Call the parent's constructor
  
         #print (str(PU_IMAGES) )
-        if (pu_type == None):
-            self.pu_type = int(round( np.random.uniform(0, len(PU_IMAGES)-1) ))
+        if (e_type == None):
+            self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
         else:
-            self.pu_type = pu_type
-        fname = PU_IMAGES[ self.pu_type ] 
+            self.e_type = e_type
+        #fname = PU_IMAGES[ self.e_type ] 
+        fname = E_DATA[self.e_type][E_IMAGE]
+        #if VERBOSE:
+        #    print "Powerup.__init__(): e_type = " +str(e_type)
+        #    print "Powerup.__init__(): self.e_type = " +str(self.e_type)
+        #    print "Powerup.__init__(): fname = " +str(fname)
+        if None == fname:
+            print "Powerup.__init__(): Error - fname == None"
+            sys.exit(0)
         image = pygame.image.load( fname )
         super(Powerup, self).__init__(start_pos, image)
+
+    def changepos(self, key):
+        self.change_x = 0
+        self.change_y = 0
+        #if key == pygame.K_LEFT:
+        #    self.change_x = -self.dx
+        #elif key == pygame.K_RIGHT:
+        #    self.change_x = self.dx
+        #elif key == pygame.K_UP:
+        #    self.change_y = -self.dy
+        #elif key == pygame.K_DOWN:
+        #    self.change_y = self.dy
+
+    def update(self):
+        pass
+ 
+
+class Ballistic(BaseSprite):
+    """Things that the player can shoot"""
+
+    def __init__(self, start_graph_pos, e_type, walls, monsters, change_x, change_y):
+        if (e_type == None):
+            self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
+        else:
+            self.e_type = e_type
+        fname = E_DATA[self.e_type][E_IMAGE]
+        if None == fname:
+            print "Ballistic.__init__(): Error - fname == None"
+            sys.exit(0)
+        image = pygame.image.load( fname )
+        start_pos = [start_graph_pos[0] / SCALE, start_graph_pos[1] / SCALE]
+        super(Ballistic, self).__init__(start_pos, image)
+        #self.rect.y = start_pos[1]   # Note: rect is graphic position, not map position
+        #self.rect.x = start_pos[0]   # Note: rect is graphic position, not map position
+        self.damage = E_DATA[self.e_type][E_DAMAGE]
+        self.walls = walls
+        self.monsters = monsters
+        self.change_x = change_x
+        self.change_y = change_y
+        if VERBOSE:
+            print "Ballistic.__init__(): e_type = " +str(e_type)
+            print "Ballistic.__init__(): self.e_type = " +str(self.e_type)
+            print "Ballistic.__init__(): fname = " +str(fname)
+            print "Ballistic.__init__(): change_x = " +str(change_x)
+            print "Ballistic.__init__(): change_y = " +str(change_y)
+
+    def changepos(self, key):
+        pass
+
+    def update(self):
+        super(Ballistic, self).update()
+        """ Update the ballistic position. """
+        if VERBOSE:
+            print "Ballistic.update(): x,y = " +str([self.rect.x, self.rect.y])
+        self.rect.x += self.change_x
+        self.rect.y += self.change_y
+        block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
+        for block in block_hit_list:
+            print "Ballistic.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
+            block.hit_pts -= self.damage
+            print "Ballistic.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
+            if block.hit_pts <= 0:
+                print "Dead Monster. Do SOMETHING!!!!"
+                block.kill()
+                #TODO: block = None, so that memory gets cleared??? Maybe we just wait until the next level of monsters is created???
+            #TODO: Create a hit flash/explosion/something
+            #self.mark_for_del()
+            self.kill()
+
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+            #self.mark_for_del()
+            self.kill()
+            print "Ballistic.update(): Hit a Wall!"
+
+
+    def active(self):
+        if self.image:
+            return True
+        else: 
+            return False
 
 class Monster(BaseSprite):
     """ Monsters. Need I say more? """
@@ -177,7 +267,6 @@ class Monster(BaseSprite):
         self.change_x = 0
         self.change_y = 0
 
-
 class Player(BaseSprite):
     """ Watcha Gon' Do Playa' """
  
@@ -196,21 +285,117 @@ class Player(BaseSprite):
         self.equipment = equipment
         self.level = 1
         self.powerups = None
-        #self.allsprites = None
+
+        self.PM_MOVE = 0
+        self.PM_BALLISTIC_SELECT = 1
+        self.PM_BALLISTIC_FIRE = 2
+        self.PM_TARGETING = 3
+        self.mode = self.PM_MOVE
+
+        self.ballistic = None
+        self.equip_loc = None
+        self.monsters = None
+        self.all_sprites = None
  
     def changepos(self, key):
-        self.change_x = 0
-        self.change_y = 0
-        if key == pygame.K_LEFT or (key == pygame.K_j):
-            self.change_x = -self.dx
-        elif key == pygame.K_RIGHT or key == pygame.K_l:
-            self.change_x = self.dx
-        elif key == pygame.K_UP or key == pygame.K_i:
-            self.change_y = -self.dy
-        elif key == pygame.K_DOWN or key == pygame.K_k:
-            self.change_y = self.dy
-        elif self.key_is_equip(key):
-            self.use_equipment(key)
+        if self.key_is_equip(key):
+            #self.use_equipment(key)
+            if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
+                return
+            self.equip_loc = key - pygame.K_1
+            if VERBOSE:
+                print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(self.equip_loc) )
+                #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
+            if self.equipment.get(self.equip_loc):
+                # If we got here, then the eqipment location is something other than none
+                e = self.equipment.get(self.equip_loc)
+                print( "Player.use_equipment(" +str(key) +"): equipment["+str(self.equip_loc) +"] = " +str(e) )
+                if E_DAGGER == e or E_FIRE_BOMB == e:
+                    self.mode = self.PM_BALLISTIC_SELECT
+                    self.weapon = e
+        elif self.PM_MOVE == self.mode:
+            self.change_x = 0
+            self.change_y = 0
+            if key == pygame.K_LEFT or (key == pygame.K_j):
+                self.change_x = -self.dx
+            elif key == pygame.K_RIGHT or key == pygame.K_l:
+                self.change_x = self.dx
+            elif key == pygame.K_UP or key == pygame.K_i:
+                self.change_y = -self.dy
+            elif key == pygame.K_DOWN or key == pygame.K_k:
+                self.change_y = self.dy
+        elif self.PM_BALLISTIC_SELECT == self.mode:
+            if pygame.K_ESCAPE == key:
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                self.change_x = 0
+                self.change_y = 0
+                print "Returning to MOVE mode"
+
+            elif self.key_is_move(key):
+                ballistic_delta = 10
+                ballistic_change_x = 0
+                ballistic_change_y = 0
+                if key == pygame.K_LEFT or (key == pygame.K_j):
+                    ballistic_change_x = -ballistic_delta
+                    print "ballistic LEFT"
+                elif key == pygame.K_RIGHT or key == pygame.K_l:
+                    ballistic_change_x = ballistic_delta
+                    print "ballistic RIGHT"
+                elif key == pygame.K_UP or key == pygame.K_i:
+                    ballistic_change_y = -ballistic_delta
+                    print "ballistic UP"
+                elif key == pygame.K_DOWN or key == pygame.K_k:
+                    ballistic_change_y = ballistic_delta
+                    print "ballistic DOWN"
+
+                #fname = E_DATA[self.weapon][E_IMAGE]
+                #if fname:
+                #    self.ballistic = pygame.image.load(fname)
+                #else:
+                #    print "Player.changepos(): unknown fname from weapon"
+                #    self.ballistic = None
+                self.ballistic = Ballistic((self.rect.x, self.rect.y), 
+                        self.weapon, self.walls, self.monsters, 
+                        ballistic_change_x, ballistic_change_y)
+                self.all_sprites.add(self.ballistic)
+     
+                # Decrement the equipment
+                self.equipment.rm(self.equip_loc)
+                self.equip_loc = None
+
+                # Cleanup
+                self.mode = self.PM_BALLISTIC_FIRE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                print "Transitioning to FIRE mode"
+
+        elif self.PM_BALLISTIC_FIRE == self.mode:
+            #if self.ballistic:
+            #    print "Player.update() calling ballistic.update()"
+            #    self.ballistic.update()
+            #else:
+            #    print "Player.update() unexpected missing ballistic member"
+            #    self.mode = self.PM_MOVE
+            #    self.weapon = None     #TODO: Do we need to define a mele weapon type??
+            #    print "Returning to MOVE mode"
+            if not self.ballistic.alive():
+                self.ballistic = None
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                print "Player.update(): ballistic hit something. Returning to MOVE mode"
+
+
+        elif self.PM_TARGETING == self.mode:
+            #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
+            print "Player Target Mode"
+            if pygame.K_ESCAPE == key:
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                print "Returning to MOVE mode"
+        else:
+            print "Unknow Player Mode"
+            sys.exit(0)
+
 
     def key_is_move(self, key):
         if ( key == pygame.K_LEFT  or key == pygame.K_j or
@@ -231,67 +416,71 @@ class Player(BaseSprite):
         else:
             return False
 
-    def use_equipment(self, key):
-        if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
-            return
-        equip_loc = key - pygame.K_1
-        if VERBOSE:
-            print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(equip_loc) )
-            #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
-        if self.equipment.get(equip_loc):
-            # If we got here, then the eqipment location is something other than none
-            e = self.equipment.get(equip_loc)
-            print( "Player.use_equipment(" +str(key) +"): eqpuipment["+str(equip_loc) +"] = " +str(e) )
-            if E_DAGGER == e or E_FIRE_BOMB == e:
-                key = False
-                while not self.key_is_move(key) and not self.key_is_equip(key) and pygame.K_ESCAPE != key:
-                    if pygame.K_ESCAPE == key:
-                        return
-                    if self.key_is_move(key):
-                        print "TODO: Move the Dagger"
-                        return
-                    if self.key_is_equip(key):
-                        print "TODO: Move the Dagger"
-                        return
+    #def use_equipment(self, key):
+    #    if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
+    #        return
+    #    equip_loc = key - pygame.K_1
+    #    if VERBOSE:
+    #        print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(equip_loc) )
+    #        #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
+    #    if self.equipment.get(equip_loc):
+    #        # If we got here, then the eqipment location is something other than none
+    #        e = self.equipment.get(equip_loc)
+    #        print( "Player.use_equipment(" +str(key) +"): equipment["+str(equip_loc) +"] = " +str(e) )
+    #        if E_DAGGER == e or E_FIRE_BOMB == e:
+    #            self.mode = self.PM_BALLISTIC_SELECT
+    #            self.weapon = e
  
     def update(self):
-        """ Update the player position. """
-        # Move left/right
-        self.rect.x += self.change_x
- 
-        # Did this update cause us to hit a wall?
-        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-        for block in block_hit_list:
-            # If we are moving right, set our right side to the left side of
-            # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
- 
-        # Move up/down
-        self.rect.y += self.change_y
- 
-        # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-        for block in block_hit_list:
- 
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            else:
-                self.rect.top = block.rect.bottom
-        self.change_x = 0
-        self.change_y = 0
-        
-        if self.powerups:
-            block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+        if self.PM_MOVE == self.mode:
+            """ Update the player position. """
+            # Move left/right
+            self.rect.x += self.change_x
+     
+            # Did this update cause us to hit a wall?
+            block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
             for block in block_hit_list:
-                #if self.allsprites:
-                #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
-                self.equipment.add( block.pu_type )
-                print self.equipment.get_list()
+                # If we are moving right, set our right side to the left side of
+                # the item we hit
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                else:
+                    # Otherwise if we are moving left, do the opposite.
+                    self.rect.left = block.rect.right
+     
+            # Move up/down
+            self.rect.y += self.change_y
+     
+            # Check and see if we hit anything
+            block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+            for block in block_hit_list:
+     
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                else:
+                    self.rect.top = block.rect.bottom
+            self.change_x = 0
+            self.change_y = 0
+            
+            if self.powerups:
+                block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+                for block in block_hit_list:
+                    #if self.allsprites:
+                    #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+                    self.equipment.add( block.e_type )
+                    print self.equipment.get_list()
+        elif self.PM_BALLISTIC_SELECT == self.mode:
+            pass
+        elif self.PM_BALLISTIC_FIRE == self.mode:
+            if not self.ballistic.active() :
+                self.ballistic = None
+                self.weapon = None
+                self.mode = self.PM_MOVE
+                print "Transitioning back to MOVE mode from FIRE mode"
+
+        elif self.PM_TARGETING == self.mode:
+            pass
  
  
  
@@ -337,9 +526,14 @@ class Status(pygame.sprite.Sprite):
         self.empty_heart = pygame.image.load('images/empty_heart.png')
 
         self.equipment_images = []
-        for fname in PU_IMAGES:
-            #self.equipment_images.append( pygame.image.load(fname).convert_alpha() )
-            self.equipment_images.append( pygame.image.load(fname) )
+        #for fname in PU_IMAGES:
+        for n in range(len(E_DATA)):
+            fname = E_DATA[n][E_IMAGE]
+            if fname:
+                #self.equipment_images.append( pygame.image.load(fname).convert_alpha() )
+                self.equipment_images.append( pygame.image.load(fname) )
+            else:
+                self.equipment_images.append( None )
 
 
         self.player = player

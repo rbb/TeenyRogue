@@ -59,9 +59,14 @@ E_LIGHTNING = 5
 # TODO other equipment
 E_MAX = 6
 
+E_IMAGE = 0
+E_DAMAGE = 1
+E_BALLISTIC = 2
+E_GLOBAL = 3
+E_TARGETING = 4
 
-PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
-             "images/freeze32.png", "images/lightning32.png" ]
+#PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
+#             "images/freeze32.png", "images/lightning32.png" ]
 
  
 def randint(maxval=1):
