@@ -73,7 +73,9 @@ class BaseSprite(pygame.sprite.Sprite):
         self.dy = SCALE
         self.walls = None
         self.monsters = None
+        self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
 
+        self.ballistic = None
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
         equipment = Equipment()
@@ -98,6 +100,15 @@ class BaseSprite(pygame.sprite.Sprite):
     def update(self):
         pass
  
+    def prn(self):
+        if VERBOSE:
+            print "change_x,y:" +str([self.change_x, self.change_y])
+            print "dx,y:      " +str([self.dx, self.dy])
+            print "hit_pts:   " +str(self.hit_pts)
+            print "exp_pts:   " +str(self.exp_pts)
+            print "damage:    " +str(self.damage)
+            #print "monsters:    " +str(self.monsters)
+            #print "walls:    " +str(self.walls)
 
 
 class Powerup(BaseSprite):
@@ -108,17 +119,18 @@ class Powerup(BaseSprite):
  
         #print (str(PU_IMAGES) )
         if (e_type == None):
-            self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
+            self.e_type = 0
+            while self.e_type == 0:
+                self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
         else:
             self.e_type = e_type
         #fname = PU_IMAGES[ self.e_type ] 
         fname = E_DATA[self.e_type][E_IMAGE]
-        #if VERBOSE:
-        #    print "Powerup.__init__(): e_type = " +str(e_type)
-        #    print "Powerup.__init__(): self.e_type = " +str(self.e_type)
-        #    print "Powerup.__init__(): fname = " +str(fname)
         if None == fname:
             print "Powerup.__init__(): Error - fname == None"
+            print "Powerup.__init__(): e_type = " +str(e_type)
+            print "Powerup.__init__(): self.e_type = " +str(self.e_type)
+            #print "Powerup.__init__(): fname = " +str(fname)
             sys.exit(0)
         image = pygame.image.load( fname )
         super(Powerup, self).__init__(start_pos, image)
@@ -142,7 +154,7 @@ class Powerup(BaseSprite):
 class Ballistic(BaseSprite):
     """Things that the player can shoot"""
 
-    def __init__(self, start_graph_pos, e_type, walls, monsters, change_x, change_y):
+    def __init__(self, start_graph_pos, e_type, walls, monsters, change_x, change_y, parent):
         if (e_type == None):
             self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
         else:
@@ -161,6 +173,8 @@ class Ballistic(BaseSprite):
         self.monsters = monsters
         self.change_x = change_x
         self.change_y = change_y
+        self.exp_pts = 0      # Use Ballistic.exp_pts as a pass through for the monster killed
+        self.parent = parent
         if VERBOSE:
             print "Ballistic.__init__(): e_type = " +str(e_type)
             print "Ballistic.__init__(): self.e_type = " +str(self.e_type)
@@ -185,7 +199,9 @@ class Ballistic(BaseSprite):
             print "Ballistic.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
             if block.hit_pts <= 0:
                 print "Dead Monster. Do SOMETHING!!!!"
+                self.exp_pts = block.exp_pts
                 block.kill()
+                self.parent.update()
                 #TODO: block = None, so that memory gets cleared??? Maybe we just wait until the next level of monsters is created???
             #TODO: Create a hit flash/explosion/something
             #self.mark_for_del()
@@ -217,6 +233,8 @@ class Monster(BaseSprite):
         else:
             self.m_type = m_type
         fname = M_DATA[self.m_type][M_IMAGE_FNAME] 
+        image = pygame.image.load( fname )
+        super(Monster, self).__init__(start_pos, image)
         self.hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
         self.moves = M_DATA[self.m_type][M_MOVES] 
         self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
@@ -224,8 +242,8 @@ class Monster(BaseSprite):
         self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
-        image = pygame.image.load( fname )
-        super(Monster, self).__init__(start_pos, image)
+            print ("Monster.hit_pts = " +str(self.hit_pts) )
+            print ("Monster.exp_pts = " +str(self.exp_pts) )
 
     #def __getattr__(self, name):
     #    return getattr(self.BaseSprite, name)
@@ -349,15 +367,9 @@ class Player(BaseSprite):
                     ballistic_change_y = ballistic_delta
                     print "ballistic DOWN"
 
-                #fname = E_DATA[self.weapon][E_IMAGE]
-                #if fname:
-                #    self.ballistic = pygame.image.load(fname)
-                #else:
-                #    print "Player.changepos(): unknown fname from weapon"
-                #    self.ballistic = None
                 self.ballistic = Ballistic((self.rect.x, self.rect.y), 
                         self.weapon, self.walls, self.monsters, 
-                        ballistic_change_x, ballistic_change_y)
+                        ballistic_change_x, ballistic_change_y, self)
                 self.all_sprites.add(self.ballistic)
      
                 # Decrement the equipment
@@ -370,20 +382,7 @@ class Player(BaseSprite):
                 print "Transitioning to FIRE mode"
 
         elif self.PM_BALLISTIC_FIRE == self.mode:
-            #if self.ballistic:
-            #    print "Player.update() calling ballistic.update()"
-            #    self.ballistic.update()
-            #else:
-            #    print "Player.update() unexpected missing ballistic member"
-            #    self.mode = self.PM_MOVE
-            #    self.weapon = None     #TODO: Do we need to define a mele weapon type??
-            #    print "Returning to MOVE mode"
-            if not self.ballistic.alive():
-                self.ballistic = None
-                self.mode = self.PM_MOVE
-                self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                print "Player.update(): ballistic hit something. Returning to MOVE mode"
-
+            pass
 
         elif self.PM_TARGETING == self.mode:
             #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
@@ -416,21 +415,6 @@ class Player(BaseSprite):
         else:
             return False
 
-    #def use_equipment(self, key):
-    #    if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
-    #        return
-    #    equip_loc = key - pygame.K_1
-    #    if VERBOSE:
-    #        print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(equip_loc) )
-    #        #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
-    #    if self.equipment.get(equip_loc):
-    #        # If we got here, then the eqipment location is something other than none
-    #        e = self.equipment.get(equip_loc)
-    #        print( "Player.use_equipment(" +str(key) +"): equipment["+str(equip_loc) +"] = " +str(e) )
-    #        if E_DAGGER == e or E_FIRE_BOMB == e:
-    #            self.mode = self.PM_BALLISTIC_SELECT
-    #            self.weapon = e
- 
     def update(self):
         if self.PM_MOVE == self.mode:
             """ Update the player position. """
@@ -454,7 +438,7 @@ class Player(BaseSprite):
                     self.rect.top = block.rect.bottom
      
      
-            # Check and see if we hit anything
+            # Check and see if we hit any Monsters
             block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
             for block in block_hit_list:
                 # Reset our position based on the left/right of the object.
@@ -470,12 +454,23 @@ class Player(BaseSprite):
                     self.rect.top = block.rect.bottom
 
                 # Do the damage
-                print "Ballistic.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
+                #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
                 block.hit_pts -= self.damage
-                print "Ballistic.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
+                print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
                 if block.hit_pts <= 0:
-                    print "Dead Monster. Do SOMETHING!!!!"
+                    self.exp_pts += block.exp_pts
+                    print "Dead Monster worth " +str(block.exp_pts) +" points"
+                    #print str(type(block))
+                    #block.prn()
+                    print "Play killed Monster. now at " +str(self.exp_pts) +" points"
+                    #self.prn()
                     block.kill()
+
+            # Check and see if we hit the ladder
+            block_hit_list = pygame.sprite.spritecollide(self, self.ladders, False)
+            for block in block_hit_list:
+                # Complete the level
+                self.kill()
 
             self.change_x = 0
             self.change_y = 0
@@ -490,12 +485,16 @@ class Player(BaseSprite):
 
         elif self.PM_BALLISTIC_SELECT == self.mode:
             pass
+
         elif self.PM_BALLISTIC_FIRE == self.mode:
-            if not self.ballistic.active() :
+            if not self.ballistic.alive():
+                self.exp_pts += self.ballistic.exp_pts
+                print "Dead Monster worth " +str(self.ballistic.exp_pts) +" points"
+                print "Player killed Monster with ballistic. now at " +str(self.exp_pts) +" points"
                 self.ballistic = None
-                self.weapon = None
                 self.mode = self.PM_MOVE
-                print "Transitioning back to MOVE mode from FIRE mode"
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                print "Player.update(): ballistic hit something. Returning to MOVE mode"
 
         elif self.PM_TARGETING == self.mode:
             pass
