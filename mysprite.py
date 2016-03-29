@@ -436,40 +436,58 @@ class Player(BaseSprite):
             """ Update the player position. """
             # Move left/right
             self.rect.x += self.change_x
+            self.rect.y += self.change_y
      
             # Did this update cause us to hit a wall?
             block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
             for block in block_hit_list:
-                # If we are moving right, set our right side to the left side of
-                # the item we hit
+                # Reset our position based on the left/right of the object.
                 if self.change_x > 0:
                     self.rect.right = block.rect.left
-                else:
-                    # Otherwise if we are moving left, do the opposite.
+                elif self.change_x < 0:
                     self.rect.left = block.rect.right
-     
-            # Move up/down
-            self.rect.y += self.change_y
-     
-            # Check and see if we hit anything
-            block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-            for block in block_hit_list:
-     
+
                 # Reset our position based on the top/bottom of the object.
                 if self.change_y > 0:
                     self.rect.bottom = block.rect.top
-                else:
+                elif self.change_y < 0:
                     self.rect.top = block.rect.bottom
+     
+     
+            # Check and see if we hit anything
+            block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
+            for block in block_hit_list:
+                # Reset our position based on the left/right of the object.
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                elif self.change_x < 0:
+                    self.rect.left = block.rect.right
+
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                elif self.change_y < 0:
+                    self.rect.top = block.rect.bottom
+
+                # Do the damage
+                print "Ballistic.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
+                block.hit_pts -= self.damage
+                print "Ballistic.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
+                if block.hit_pts <= 0:
+                    print "Dead Monster. Do SOMETHING!!!!"
+                    block.kill()
+
             self.change_x = 0
             self.change_y = 0
             
-            if self.powerups:
+            if self.powerups: #TODO require powerups as part of __init__(), so we don't need this test?
                 block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
                 for block in block_hit_list:
                     #if self.allsprites:
                     #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
                     self.equipment.add( block.e_type )
                     print self.equipment.get_list()
+
         elif self.PM_BALLISTIC_SELECT == self.mode:
             pass
         elif self.PM_BALLISTIC_FIRE == self.mode:
