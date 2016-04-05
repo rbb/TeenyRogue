@@ -2,6 +2,7 @@ import numpy as np
 
 # -- Global constants
 VERBOSE = 1
+PNG_BG = False
 
 MAP_W = 10
 MAP_H = 10
@@ -20,6 +21,9 @@ PURPLE_DARK = (64, 32, 64)
 PURPLE = (100, 12, 100)
 GRAY = (128, 128, 128)
 GRAY_25 = (64, 64, 64)
+GRAY_37 = (94, 94, 94)
+GRAY_40 = (102, 102, 102)
+GRAY_45 = (115, 115, 115)
 GRAY_50 = (128, 128, 128)
 GRAY_75 = (192, 192, 192)
 GREENISH = (67, 232, 43)

@@ -2,6 +2,7 @@ import pygame, sys
 from pygame.locals import *
 import numpy as np
 from utils import *
+import os
 
 #TODO: Refactor E_* values and E_DATA into Equipment class
 class Equipment:
@@ -223,7 +224,7 @@ class Ballistic(BaseSprite):
 class Monster(BaseSprite):
     """ Monsters. Need I say more? """
  
-    def __init__(self, start_pos, m_type=None):
+    def __init__(self, start_pos, level_map, m_type=None):
         #image = pygame.image.load('images/knight32.png')
         #super(Monster, self).__init__(start_pos, image)
         #BaseSprite.__init__(self, start_pos, image)
@@ -240,6 +241,10 @@ class Monster(BaseSprite):
         self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
         self.ballistic = M_DATA[self.m_type][M_BALLISTIC] 
         self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
+        self.player = None
+        self.players = None
+        self.monsters = None
+        self.level_map = level_map
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
@@ -253,37 +258,109 @@ class Monster(BaseSprite):
     #    self.change_y = 0
     #    #TODO: figure out where the player is, and head there
     #    #TODO: Maybe modify the above behavior based on Monster type
+
+    def move(self, dx, dy):
+        """ Try to move by dx or dy amount, backout the change if we hit another monster."""
+        self.rect.x += dx
+        self.change_x = dx
+
+        self.rect.y += dy
+        self.change_y = dy
+
+        #print ("Monster.move: monsters = " + str(self.monsters) )
+        if self.monsters:
+            block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
+            if block_hit_list:
+                # Reset our position based on the left/right of the object.
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                elif self.change_x < 0:
+                    self.rect.left = block.rect.right
+
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                elif self.change_y < 0:
+                    self.rect.top = block.rect.bottom
+
+    def changepos(self):
+        """ The logic for the moster movement (AI) """
+        # First, try to move towards the player
+        x,y = self.get_map_pos()
+        px,py = self.player.get_map_pos()
+        dx = px - x
+        dy = py - y
+        d = dy - dx # d > 1 means y larger, d < 0 means x larger
+
+        # attack directly if adjacent
+        if dy == 1:
+            self.move(0, SCALE)
+        elif dy == -1:
+            self.move(0, -SCALE)
+        elif dx == 1:
+            self.move(SCALE, 0)
+        elif dx == -1:
+            self.move(-SCALE, 0)
+
+        # Not adjacent to play, so move towards them
+        # Go the farther direction first
+        elif d > 1 and dy > 0 and not self.level_map.is_wall(x, y +1):
+                self.rect.y += SCALE
+        elif d > 1 and dy < 0 and not self.level_map.is_wall(x, y -1):
+                self.rect.y -= SCALE
+        elif d < 1 and dx > 0 and not self.level_map.is_wall(x +1, y):
+                self.rect.x += SCALE
+        elif d < 1 and dx < 0 and not self.level_map.is_wall(x -1, y):
+                self.rect.x -= SCALE
+
+        # We can't head directly towards player
+        # So, try to go perpendicular
+        elif d < 1 and dy > 0 and not self.level_map.is_wall(x, y +1):
+            self.move(0, SCALE)
+        elif d < 1 and dy < 0 and not self.level_map.is_wall(x, y -1):
+            self.move(0, -SCALE)
+        elif d > 1 and dx > 0 and not self.level_map.is_wall(x +1, y):
+            self.move(SCALE, 0)
+        elif d > 1 and dx < 0 and not self.level_map.is_wall(x -1, y):
+            self.move(-SCALE, 0)
+
+        # If we can't figure out where to go, then just pick at random
+        while True:
+            cx, cy = self.get_map_pos()
+            #print "x,y = " +str( [x,y]) +"    cx,cy = " +str( [cx,cy] )
+            if x != cx or y != cy:
+                break
+
+            r = randint(4)
+            if   r < 1 and not self.level_map.is_wall(x, y +1):
+                self.rect.y += SCALE
+            elif r < 2 and not self.level_map.is_wall(x, y -1):
+                self.rect.y -= SCALE
+            elif r < 3 and not self.level_map.is_wall(x +1, y):
+                self.rect.x += SCALE
+            elif           not self.level_map.is_wall(x -1, y):
+                self.rect.x -= SCALE
+
  
     def update(self):
         """ Update the position, etc """
-        # Move left/right
-        self.rect.x += self.change_x
- 
-        # Did this update cause us to hit a wall?
-        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-        for block in block_hit_list:
-            # If we are moving right, set our right side to the left side of
-            # the item we hit
-            if self.change_x > 0:
-                self.rect.right = block.rect.left
-            else:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
- 
-        # Move up/down
-        self.rect.y += self.change_y
- 
-        # Check and see if we hit anything
-        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-        for block in block_hit_list:
- 
-            # Reset our position based on the top/bottom of the object.
-            if self.change_y > 0:
-                self.rect.bottom = block.rect.top
-            else:
-                self.rect.top = block.rect.bottom
-        self.change_x = 0
-        self.change_y = 0
+        if self.player.hit_pts < 0:
+            return
+        if self.player.my_turn:
+            return
+
+        for n in range(self.moves):
+            self.changepos()
+
+            # Did this update cause us to hit the player
+            block_hit_list = pygame.sprite.spritecollide(self, self.players, False)
+            for block in block_hit_list:
+                # Do the damage
+                self.player.hit_pts -= self.damage
+                print "Monster.update() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+                if self.player.hit_pts < 0:
+                    return
+     
 
 class Player(BaseSprite):
     """ Watcha Gon' Do Playa' """
@@ -314,6 +391,8 @@ class Player(BaseSprite):
         self.equip_loc = None
         self.monsters = None
         self.all_sprites = None
+
+        self.my_turn = True
  
     def changepos(self, key):
         if self.key_is_equip(key):
@@ -336,12 +415,16 @@ class Player(BaseSprite):
             self.change_y = 0
             if key == pygame.K_LEFT or (key == pygame.K_j):
                 self.change_x = -self.dx
+                self.my_turn = False
             elif key == pygame.K_RIGHT or key == pygame.K_l:
                 self.change_x = self.dx
+                self.my_turn = False
             elif key == pygame.K_UP or key == pygame.K_i:
                 self.change_y = -self.dy
+                self.my_turn = False
             elif key == pygame.K_DOWN or key == pygame.K_k:
                 self.change_y = self.dy
+                self.my_turn = False
         elif self.PM_BALLISTIC_SELECT == self.mode:
             if pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
@@ -392,7 +475,7 @@ class Player(BaseSprite):
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 print "Returning to MOVE mode"
         else:
-            print "Unknow Player Mode"
+            print "Unknown Player Mode"
             sys.exit(0)
 
 
@@ -495,6 +578,7 @@ class Player(BaseSprite):
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 print "Player.update(): ballistic hit something. Returning to MOVE mode"
+                self.my_turn = False
 
         elif self.PM_TARGETING == self.mode:
             pass
@@ -502,20 +586,23 @@ class Player(BaseSprite):
  
  
 class Wall(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, fname=None):
+    def __init__(self, x, y, scale, surf):
         """ Constructor for the wall that the player and monsters can run into. """
         super(Wall, self).__init__()
  
-        # Make a blue wall, of the size specified in the parameters
-        if fname:
-            self.image = pygame.Surface([SCALE, SCALE])
-            self.image.fill(GRAY)
-            #tile = pygame.image.load(fname).convert_alpha()
-            tile = pygame.image.load(fname)
-            self.image.blit(tile, (0,0) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
-        else:
-            self.image = pygame.Surface([SCALE, SCALE])
-            self.image.fill(BLUE)
+        ## Make a blue wall, of the size specified in the parameters
+        #if name:
+        #    #if os.path.isfile(name):
+        #    #    #tile = pygame.image.load(name).convert_alpha()
+        #    #    #self.image = pygame.image.load(name).convert()
+        #    #    #self.image.blit(tile, (0,0) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        #    #else:
+        #    #    self.image = pygame.Surface([SCALE, SCALE])
+        #    #    self.image.fill(name)
+        #else:
+        self.image = surf
+        #   self.image = pygame.Surface([SCALE, SCALE])
+        #   self.image.fill(GRAY_37)
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
