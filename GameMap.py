@@ -19,7 +19,7 @@ class game_map():
         self.X = self.m.shape[1]
         self.Y = self.m.shape[0]
         self.setedges(WALL)              # edgewalls not defined yet!!
-        #self.ladder = None
+        self.ladder = None
 
     def setblock(self, x1, y1, x2, y2, t):
         for x in range(x1, x2):
@@ -35,8 +35,8 @@ class game_map():
         self.m[0,   0:x] = v
         self.m[y-1, 0:x] = v
 
-        #self.ladder = self.randempty()
-        #self.m[self.ladder[0], self.ladder[1]] = LADDER
+        self.ladder = self.randempty()
+        self.m[self.ladder[0], self.ladder[1]] = LADDER
 
     def newempty(self):
         self.m = np.zeros([self.Y, self.X])
@@ -95,7 +95,7 @@ class game_map():
                     if not canpass:
                         self.m[y,x] = SPACE
 
-    def testwall(self, x, y):
+    def is_wall(self, x, y):
         if x > self.X-1 or y > self.Y-1:
             return True
         if self.m[y,x] == WALL:

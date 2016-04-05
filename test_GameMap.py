@@ -26,10 +26,10 @@ print( gm.m.mean() )
 print ("\n");
 
 
-print ("------- testwall() ----------");
-print ( gm.testwall(0,0) )
-print ( gm.testwall(gm.X-1,gm.Y-1) )
-print ( gm.testwall(gm.X,gm.Y) )
+print ("------- is_wall() ----------");
+print ( gm.is_wall(0,0) )
+print ( gm.is_wall(gm.X-1,gm.Y-1) )
+print ( gm.is_wall(gm.X,gm.Y) )
 print ("\n");
 
 
