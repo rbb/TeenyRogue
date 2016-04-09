@@ -37,6 +37,32 @@ print ("------- randempty() ----------");
 print ( gm.randempty() )
 print ("\n");
 
+print ("------- newrandsnake() ----------");
+gm.newrandsnake()
+gm.prn_m()
+ret_valid = gm.is_valid()
+print "is_valid() returns: " +str(ret_valid)
+
+N = 1000
+snake_valids = np.zeros( N )
+for n in range(N):
+    gm.newrandsnake()
+    snake_valids[n] = gm.is_valid()
+print "average = " +str(snake_valids.mean() )
+print ("\n");
+
+print ("------- newrandblocks() ----------");
+gm.newrandblocks()
+gm.prn_m()
+ret_valid = gm.is_valid()
+print "is_valid() returns: " +str(ret_valid)
+
+block_valids = np.zeros( N )
+for n in range(N):
+    gm.newrandblocks()
+    block_valids[n] = gm.is_valid()
+print "average = " +str(block_valids.mean() )
+print ("\n");
 
 
 
