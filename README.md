@@ -15,6 +15,7 @@ Hours
  3/29, 4 hr
  3/30, 3 hr
  4/4,  2 hr
+ 4/4,  6 hr
 
 Ghost 100
 Troll 100
