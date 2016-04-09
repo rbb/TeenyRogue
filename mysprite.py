@@ -221,6 +221,62 @@ class Ballistic(BaseSprite):
         else: 
             return False
 
+class Stun:
+    """Object to hold stun sprites"""
+    def __init__(self, image):
+        """
+        self.STUN1 = pygame.Surface([SCALE, SCALE])
+        self.STUN1.set_alpha(128)
+        pygame.draw.line(self.STUN1, YELLOW, (13,11), (18,11), 1) 
+        pygame.draw.line(self.STUN1, YELLOW, (13,0), (18,0), 1) 
+        pygame.draw.line(self.STUN1, YELLOW, (7,4), (7,7), 1) 
+        pygame.draw.line(self.STUN1, YELLOW, (24,4), (24,7), 1) 
+
+        self.STUN2 = pygame.Surface([SCALE, SCALE])
+        self.STUN2.set_alpha(128)
+        pygame.draw.line(self.STUN2, YELLOW, (24,4), (21,1), 1) 
+        pygame.draw.line(self.STUN2, YELLOW, (13,0), (10,1), 1) 
+        pygame.draw.line(self.STUN2, YELLOW, (7,7), (10,10), 1) 
+        pygame.draw.line(self.STUN2, YELLOW, (18,11), (21,10), 1) 
+
+        self.STUN3 = pygame.Surface([SCALE, SCALE])
+        self.STUN3.set_alpha(128)
+        pygame.draw.line(self.STUN3, YELLOW, (21,10), (24,7), 1) 
+        pygame.draw.line(self.STUN3, YELLOW, (21,1), (18,0), 1) 
+        pygame.draw.line(self.STUN3, YELLOW, (10,1), (7,4), 1) 
+        pygame.draw.line(self.STUN3, YELLOW, (18,10), (13,11), 1) 
+
+        self.n = 0
+        self.sprite_list = [self.STUN1, self.STUN2, self.STUN3]
+        self.sprite = self.STUN1
+        """
+        self.lines = []
+        self.lines.append( [ (13,11), (18,11), (13,0), (18,0), (7,4), (7,7), (24,4), (24,7) ]   )
+        self.lines.append( [ (24,4), (21,1), (13,0), (10,1), (7,7), (10,10), (18,11), (21,10) ] )
+        self.lines.append( [ (21,10), (24,7), (21,1), (18,0), (10,1), (7,4), (18,10), (13,11) ] )
+
+        self.base_image = image.copy()
+        self.sprite = image.copy()
+        self.n = 0
+        self.DIV = 8
+        self.draw_stun()
+
+
+    def draw_stun(self):
+        m = self.n/self.DIV
+        self.sprite = self.base_image.copy()
+        pygame.draw.line(self.sprite, YELLOW, self.lines[m][0], self.lines[m][1], 1) 
+        pygame.draw.line(self.sprite, YELLOW, self.lines[m][2], self.lines[m][3], 1) 
+        pygame.draw.line(self.sprite, YELLOW, self.lines[m][4], self.lines[m][5], 1) 
+        pygame.draw.line(self.sprite, YELLOW, self.lines[m][6], self.lines[m][7], 1) 
+
+    def next(self):
+        self.n += 1
+        if self.n >= len(self.lines)*self.DIV:
+            self.n = 0
+        #self.sprite = self.sprite_list[self.n/self.DIV]
+        self.draw_stun()
+
 class Monster(BaseSprite):
     """ Monsters. Need I say more? """
  
@@ -236,6 +292,7 @@ class Monster(BaseSprite):
         fname = M_DATA[self.m_type][M_IMAGE_FNAME] 
         image = pygame.image.load( fname )
         super(Monster, self).__init__(start_pos, image)
+        self.base_image = image
         self.hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
         self.moves = M_DATA[self.m_type][M_MOVES] 
         self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
@@ -247,6 +304,7 @@ class Monster(BaseSprite):
         self.level_map = level_map
         self.stun_level = 0
         self.recover_rate = 1
+        self.stun = Stun(self.image)
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
@@ -254,40 +312,37 @@ class Monster(BaseSprite):
 
     #def __getattr__(self, name):
     #    return getattr(self.BaseSprite, name)
- 
-    #def changepos(self, key):
-    #    self.change_x = 0
-    #    self.change_y = 0
-    #    #TODO: figure out where the player is, and head there
-    #    #TODO: Maybe modify the above behavior based on Monster type
-
-    def move(self, dx, dy):
-        """ Try to move by dx or dy amount, backout the change if we hit another monster."""
-        self.rect.x += dx
-        self.change_x = dx
-
-        self.rect.y += dy
-        self.change_y = dy
-        if VERBOSE:
-            print "Monster.move: dx,dy = " +str([dx,dy])
-
-        #print ("Monster.move: monsters = " + str(self.monsters) )
-        if self.monsters:
-            block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
-            if block_hit_list:
-                # Reset our position based on the left/right of the object.
-                if self.change_x > 0:
-                    self.rect.right = block.rect.left
-                elif self.change_x < 0:
-                    self.rect.left = block.rect.right
-
-                # Reset our position based on the top/bottom of the object.
-                if self.change_y > 0:
-                    self.rect.bottom = block.rect.top
-                elif self.change_y < 0:
-                    self.rect.top = block.rect.bottom
-
     def changepos(self):
+        """ Update the Monster position, etc """
+        print "Monster.changepos"
+        if not MONSTER_MOVE:
+            return
+        if self.player.hit_pts <= 0:
+            return
+        if self.player.my_turn:
+            return
+
+        if self.stun_level > 0:
+            self.stun_level -= self.recover_rate
+            if self.stun_level < 0:
+                self.stun_level = 0
+            if VERBOSE:
+                print "Monster stunned. Recovered to stun_level = " +str(self.stun_level)
+            return
+
+        for n in range(self.moves):
+            self.find_move()
+
+            # Did this update cause us to hit the player
+            block_hit_list = pygame.sprite.spritecollide(self, self.players, False)
+            for block in block_hit_list:
+                # Do the damage
+                self.player.hit_pts -= self.damage
+                print "Monster.changepos() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+                if self.player.hit_pts < 0:
+                    return
+        
+    def find_move(self):
         """ The logic for the moster movement (AI) """
         # First, try to move towards the player
         x,y = self.get_map_pos()
@@ -350,36 +405,41 @@ class Monster(BaseSprite):
             elif           not self.level_map.is_wall(x -1, y):
                 self.rect.x -= SCALE
 
- 
+    def move(self, dx, dy):
+        """ Try to move by dx or dy amount, backout the change if we hit another monster."""
+        self.rect.x += dx
+        self.change_x = dx
+
+        self.rect.y += dy
+        self.change_y = dy
+        if VERBOSE:
+            print "Monster.move: dx,dy = " +str([dx,dy])
+
+        #print ("Monster.move: monsters = " + str(self.monsters) )
+        if self.monsters:
+            block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
+            if block_hit_list:
+                # Reset our position based on the left/right of the object.
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                elif self.change_x < 0:
+                    self.rect.left = block.rect.right
+
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                elif self.change_y < 0:
+                    self.rect.top = block.rect.bottom
+
     def update(self):
         """ Update the Monster position, etc """
-        print "Monster.update"
-        if not MONSTER_MOVE:
-            return
-        if self.player.hit_pts <= 0:
-            return
-        if self.player.my_turn:
-            return
         if self.stun_level > 0:
-            self.stun_level -= self.recover_rate
-            if self.stun_level < 0:
-                self.stun_level = 0
-            if VERBOSE:
-                print "Monster stunned. Recovered to stun_level = " +str(self.stun_level)
-            return
+            self.stun.next()
+            self.image = self.stun.sprite
+        else:
+            self.image = self.base_image 
+        #TODO:  self.image.blit(self.hits)
 
-        for n in range(self.moves):
-            self.changepos()
-
-            # Did this update cause us to hit the player
-            block_hit_list = pygame.sprite.spritecollide(self, self.players, False)
-            for block in block_hit_list:
-                # Do the damage
-                self.player.hit_pts -= self.damage
-                print "Monster.update() Hit Player: new hit_pts = " +str(self.player.hit_pts)
-                if self.player.hit_pts < 0:
-                    return
-     
 
 class Player(BaseSprite):
     """ Watcha Gon' Do Playa' """
@@ -412,7 +472,7 @@ class Player(BaseSprite):
         self.all_sprites = None
 
         self.my_turn = True
-        self.stun_rate = 1
+        self.stun_rate = 2
  
     def changepos(self, key):
         if self.key_is_equip(key):
