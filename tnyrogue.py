@@ -7,8 +7,6 @@ from mysprite import *
 from utils import *
 
 
-
-
 if TEST_MAP:
     N_MONSTERS = 1
     N_POWERUPS = 0
@@ -50,7 +48,7 @@ pygame.display.set_caption('TnyRogue')
 bg = pygame.Surface([SCREEN_W, SCREEN_H +STATUS_H])
 bg.fill(BLACK)
 if PNG_BG:
-    floor = pygame.image.load( 'images/floor_gray.png').convert()
+    floor = pygame.image.load('images/floor_gray.png').convert()
 else:
     floor = pygame.Surface([SCALE, SCALE])
     floor_rect = floor.get_rect()
@@ -242,7 +240,7 @@ while not done:
             n_monster_turn += 1
             monster_list[n].my_turn = True
             # TODO: separate Monster update() from changepos()/move() so that they can do ballistics
-            monster_list[n].update()
+            monster_list[n].changepos()
             monster_list[n].my_turn = False
 
     for event in pygame.event.get():
@@ -261,7 +259,7 @@ while not done:
 
     # Update actions
     player.update()
-    #monster_group.update()
+    monster_group.update()
     #all_sprite_group.update()
 
     # Do the rendering

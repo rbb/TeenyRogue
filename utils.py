@@ -33,6 +33,7 @@ GRAY_45 = (115, 115, 115)
 GRAY_50 = (128, 128, 128)
 GRAY_75 = (192, 192, 192)
 GREENISH = (67, 232, 43)
+YELLOW = (244, 241, 0)
  
 # Monster database
 #                                 hit          moves/ exp  stopped  ballistic
