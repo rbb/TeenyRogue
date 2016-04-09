@@ -12,21 +12,16 @@ VALID = 1
 UNEXPLORED = 0    # For Valid matrix
 
 class game_map():
-    def __init__(self, x=10, y=3):
+    def __init__(self, x=10, y=3, ladder=None):
         # Note: numpy matrices are row(y) first, then column(x) !!!
         self.m = np.zeros([y, x], int)      # The map, not using 'map' because it is a keyword in python
         self.valid = np.zeros([y, x], int)      # The valid matrix, not using 'valid' because of the valid() function
         self.X = self.m.shape[1]
         self.Y = self.m.shape[0]
-        self.setedges(WALL)              # edgewalls not defined yet!!
         self.ladder = None
+        self.setedges(WALL, ladder)              # edgewalls not defined yet!!
 
-    def setblock(self, x1, y1, x2, y2, t):
-        for x in range(x1, x2):
-            for y in range(y1, y2):
-                self.m[y,x] = t;
-
-    def setedges(self, v):    # TODO: rename to finalize() or something?
+    def setedges(self, v, ladder=None):    # TODO: rename to finalize() or something?
         """Force the edges to be walls, and add a ladder"""
         x = self.X
         y = self.Y
@@ -35,8 +30,11 @@ class game_map():
         self.m[0,   0:x] = v
         self.m[y-1, 0:x] = v
 
-        self.ladder = self.randempty()
-        self.m[self.ladder[0], self.ladder[1]] = LADDER
+        if ladder:
+            self.ladder = ladder
+        else:
+            self.ladder = self.randempty()
+        self.m[self.ladder[1], self.ladder[0]] = LADDER
 
     def newempty(self):
         self.m = np.zeros([self.Y, self.X])
@@ -44,25 +42,44 @@ class game_map():
 
     def newrand(self, limit=0.75):
         """Create a new random map"""
+        self.ladder = None
         self.m = np.random.rand(self.Y, self.X)
         self.m[(self.m>limit).nonzero()] = WALL
         self.m[(self.m<=limit).nonzero()] = SPACE
         self.setedges(WALL)
 
+    def setblock(self, x1, y1, x2, y2, v):
+        #print "setblock: x1,y1,x2,y2,v = " +str([x1, y1, x2, y2, v])
+        for x in range(x1, x2+1):
+            for y in range(y1, y2+1):
+                self.m[y,x] = v;
+
     def newrandblocks(self, N=10):
         """Create a new map with random blocks of walls"""
+        self.ladder = None
+        #print "X,Y = " +str([self.X,self.Y]) +"    shape = " +str(self.m.shape)
+        self.m = np.zeros( self.m.shape )
+        self.X = self.m.shape[1]
+        self.Y = self.m.shape[0]
+        #print "X,Y = " +str([self.X,self.Y]) +"    shape = " +str(self.m.shape)
+        #self.prn_m()
+        #print "----"
         for n in range(N):
             dx = randint(self.X/4)
-            dy = randint(self.X/4)
+            dy = randint(self.Y/4)
             x1 = randint(self.X)
-            y1 = randint(self.X)
+            y1 = randint(self.Y)
             x2 = self.limitrange(x1 +dx, self.X)
             y2 = self.limitrange(y1 +dy, self.Y)
             self.setblock(x1, y1, x2, y2, WALL)
+            #self.prn_m()
+            #print "----"
         self.setedges(WALL)
 
     def newrandsnake(self, N=8, M=5):
         """Create a new map with random blocks of walls"""
+        self.ladder = None
+        self.m = np.zeros( self.m.shape )
         for n in range(N):
             x = self.limitrange(randint(self.X), self.X)
             y = self.limitrange(randint(self.Y), self.Y)
@@ -102,6 +119,20 @@ class game_map():
             return True
         return False
 
+    def is_ladder(self, x, y):
+        if x > self.X-1 or y > self.Y-1:
+            return False
+        if self.m[y,x] == LADDER:
+            return True
+        return False
+
+    def is_space(self, x, y):
+        if x > self.X-1 or y > self.Y-1:
+            return False
+        if self.m[y,x] == SPACE:
+            return True
+        return False
+
     def limitrange(self, a, A):
         if a > A -1:
             #print("++++++++++++++++++");
@@ -133,14 +164,14 @@ class game_map():
                 if tile == WALL:
                     s += '##'
                 elif tile == SPACE:
-                    s += '  '
+                    #s += '..'
+                    s += "  "
                 elif tile == LADDER:
                     s += '++'
                 elif tile == UNEXPLORED:
                     s += 'vv'
             s += "\n"
-        #s += "\n"
-        print s.strip()
+        print s
     def prn_m(self):
         self.prn(self.m)
     def prn_valid(self):
@@ -198,3 +229,4 @@ class game_map():
         if np.all(self.valid):
             return True
         return False
+

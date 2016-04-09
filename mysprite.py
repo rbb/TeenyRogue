@@ -245,6 +245,8 @@ class Monster(BaseSprite):
         self.players = None
         self.monsters = None
         self.level_map = level_map
+        self.stun_level = 0
+        self.recover_rate = 1
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
@@ -266,6 +268,8 @@ class Monster(BaseSprite):
 
         self.rect.y += dy
         self.change_y = dy
+        if VERBOSE:
+            print "Monster.move: dx,dy = " +str([dx,dy])
 
         #print ("Monster.move: monsters = " + str(self.monsters) )
         if self.monsters:
@@ -290,38 +294,43 @@ class Monster(BaseSprite):
         px,py = self.player.get_map_pos()
         dx = px - x
         dy = py - y
-        d = dy - dx # d > 1 means y larger, d < 0 means x larger
+        d = abs(dy) - abs(dx) # d > 1 means y larger, d < 0 means x larger
+        dsum = abs(dy) + abs(dx) # d > 1 means y larger, d < 0 means x larger
+        if VERBOSE:
+            print "Monster.changepos: x,y = " +str([x,y]) +",   px,py = " +str([px,py])
+            print "Monster.changepos: dx,dy = " +str([dx,dy]) +",   d = " +str(d) +",   dsum = " +str(dsum)
 
         # attack directly if adjacent
-        if dy == 1:
-            self.move(0, SCALE)
-        elif dy == -1:
-            self.move(0, -SCALE)
-        elif dx == 1:
-            self.move(SCALE, 0)
-        elif dx == -1:
-            self.move(-SCALE, 0)
+        if dsum == 1:
+            if dy == 1:
+                self.move(0, SCALE)
+            elif dy == -1:
+                self.move(0, -SCALE)
+            elif dx == 1:
+                self.move(SCALE, 0)
+            elif dx == -1:
+                self.move(-SCALE, 0)
 
         # Not adjacent to play, so move towards them
         # Go the farther direction first
-        elif d > 1 and dy > 0 and not self.level_map.is_wall(x, y +1):
+        elif d >= 0 and dy > 0 and not self.level_map.is_wall(x, y +1):
                 self.rect.y += SCALE
-        elif d > 1 and dy < 0 and not self.level_map.is_wall(x, y -1):
+        elif d >= 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
                 self.rect.y -= SCALE
-        elif d < 1 and dx > 0 and not self.level_map.is_wall(x +1, y):
+        elif d < 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
                 self.rect.x += SCALE
-        elif d < 1 and dx < 0 and not self.level_map.is_wall(x -1, y):
+        elif d < 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
                 self.rect.x -= SCALE
 
         # We can't head directly towards player
         # So, try to go perpendicular
-        elif d < 1 and dy > 0 and not self.level_map.is_wall(x, y +1):
+        elif d < 0 and dy > 0 and not self.level_map.is_wall(x, y +1):
             self.move(0, SCALE)
-        elif d < 1 and dy < 0 and not self.level_map.is_wall(x, y -1):
+        elif d < 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
             self.move(0, -SCALE)
-        elif d > 1 and dx > 0 and not self.level_map.is_wall(x +1, y):
+        elif d >= 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
             self.move(SCALE, 0)
-        elif d > 1 and dx < 0 and not self.level_map.is_wall(x -1, y):
+        elif d >= 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
             self.move(-SCALE, 0)
 
         # If we can't figure out where to go, then just pick at random
@@ -343,10 +352,20 @@ class Monster(BaseSprite):
 
  
     def update(self):
-        """ Update the position, etc """
-        if self.player.hit_pts < 0:
+        """ Update the Monster position, etc """
+        print "Monster.update"
+        if not MONSTER_MOVE:
+            return
+        if self.player.hit_pts <= 0:
             return
         if self.player.my_turn:
+            return
+        if self.stun_level > 0:
+            self.stun_level -= self.recover_rate
+            if self.stun_level < 0:
+                self.stun_level = 0
+            if VERBOSE:
+                print "Monster stunned. Recovered to stun_level = " +str(self.stun_level)
             return
 
         for n in range(self.moves):
@@ -393,6 +412,7 @@ class Player(BaseSprite):
         self.all_sprites = None
 
         self.my_turn = True
+        self.stun_rate = 1
  
     def changepos(self, key):
         if self.key_is_equip(key):
@@ -519,6 +539,7 @@ class Player(BaseSprite):
                     self.rect.bottom = block.rect.top
                 elif self.change_y < 0:
                     self.rect.top = block.rect.bottom
+                return
      
      
             # Check and see if we hit any Monsters
@@ -539,6 +560,7 @@ class Player(BaseSprite):
                 # Do the damage
                 #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
                 block.hit_pts -= self.damage
+                block.stun_level += self.stun_rate
                 print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
                 if block.hit_pts <= 0:
                     self.exp_pts += block.exp_pts
@@ -582,6 +604,7 @@ class Player(BaseSprite):
 
         elif self.PM_TARGETING == self.mode:
             pass
+        #print "Player.update complete"
  
  
  

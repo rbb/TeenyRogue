@@ -3,9 +3,15 @@ import numpy as np
 # -- Global constants
 VERBOSE = 1
 PNG_BG = False
+MONSTER_MOVE = True
+TEST_MAP = False
 
-MAP_W = 10
-MAP_H = 10
+if TEST_MAP:
+    MAP_W = 5
+    MAP_H = 5
+else:
+    MAP_W = 10
+    MAP_H = 10
 SCALE = 32
 SCREEN_W = SCALE*MAP_W
 SCREEN_H = SCALE*MAP_H
