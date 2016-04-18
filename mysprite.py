@@ -111,6 +111,23 @@ class BaseSprite(pygame.sprite.Sprite):
             #print "monsters:    " +str(self.monsters)
             #print "walls:    " +str(self.walls)
 
+    def move_collision (self, sprite_group):
+        block_hit_list = pygame.sprite.spritecollide(self, sprite_group, False)
+        if block_hit_list:
+            # Reset our position based on the left/right of the object.
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+            elif self.change_x < 0:
+                self.rect.left = block.rect.right
+
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            elif self.change_y < 0:
+                self.rect.top = block.rect.bottom
+
+            return True
+        return False
 
 class Powerup(BaseSprite):
     """ Powerups that the player can grab"""
@@ -333,14 +350,6 @@ class Monster(BaseSprite):
         for n in range(self.moves):
             self.find_move()
 
-            # Did this update cause us to hit the player
-            block_hit_list = pygame.sprite.spritecollide(self, self.players, False)
-            for block in block_hit_list:
-                # Do the damage
-                self.player.hit_pts -= self.damage
-                print "Monster.changepos() Hit Player: new hit_pts = " +str(self.player.hit_pts)
-                if self.player.hit_pts < 0:
-                    return
         
     def find_move(self):
         """ The logic for the moster movement (AI) """
@@ -350,60 +359,96 @@ class Monster(BaseSprite):
         dx = px - x
         dy = py - y
         d = abs(dy) - abs(dx) # d > 1 means y larger, d < 0 means x larger
-        dsum = abs(dy) + abs(dx) # d > 1 means y larger, d < 0 means x larger
+        dsum = abs(dy) + abs(dx) # dsum = 1 means player directly adjacent
         if VERBOSE:
-            print "Monster.changepos: x,y = " +str([x,y]) +",   px,py = " +str([px,py])
-            print "Monster.changepos: dx,dy = " +str([dx,dy]) +",   d = " +str(d) +",   dsum = " +str(dsum)
+            print "Monster.find_move: x,y = " +str([x,y]) +",   px,py = " +str([px,py])
+            print "Monster.find_move: dx,dy = " +str([dx,dy]) +",   d = " +str(d) +",   dsum = " +str(dsum)
 
         # attack directly if adjacent
         if dsum == 1:
-            if dy == 1:
-                self.move(0, SCALE)
-            elif dy == -1:
-                self.move(0, -SCALE)
-            elif dx == 1:
-                self.move(SCALE, 0)
-            elif dx == -1:
-                self.move(-SCALE, 0)
+            # If we attack directly adjacent, then we don't need to move the sprite
+            #if dy == 1:
+            #    self.move(0, SCALE)
+            #elif dy == -1:
+            #    self.move(0, -SCALE)
+            #elif dx == 1:
+            #    self.move(SCALE, 0)
+            #elif dx == -1:
+            #    self.move(-SCALE, 0)
+
+            # Did this update cause us to hit the player
+            #if move_collision (self, self.players):
+            #block_hit_list = pygame.sprite.spritecollide(self, self.players, False)
+            #for block in block_hit_list:
+            #    # Do the damage
+            #    self.player.hit_pts -= self.damage
+            #    print "Monster.changepos() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+            #    if self.player.hit_pts < 0:
+            #        return
+            # Do the damage
+            self.player.hit_pts -= self.damage
+            if VERBOSE:
+                print "Monster.find_move() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+            #if self.player.hit_pts < 0:
+            #    return
 
         # Not adjacent to play, so move towards them
         # Go the farther direction first
         elif d >= 0 and dy > 0 and not self.level_map.is_wall(x, y +1):
-                self.rect.y += SCALE
+            self.move(0, SCALE)
+            if VERBOSE:
+                print "Monster.find_move() going South towards player"
         elif d >= 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
-                self.rect.y -= SCALE
+            self.move(0, -SCALE)
+            if VERBOSE:
+                print "Monster.find_move() going North towards player"
         elif d < 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
-                self.rect.x += SCALE
+            self.move(SCALE, 0)
+            if VERBOSE:
+                print "Monster.find_move() going East towards player"
         elif d < 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
-                self.rect.x -= SCALE
+            self.move(-SCALE, 0)
+            if VERBOSE:
+                print "Monster.find_move() going West towards player"
 
         # We can't head directly towards player
         # So, try to go perpendicular
         elif d < 0 and dy > 0 and not self.level_map.is_wall(x, y +1):
             self.move(0, SCALE)
+            if VERBOSE:
+                print "Monster.find_move() going South"
         elif d < 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
             self.move(0, -SCALE)
+            if VERBOSE:
+                print "Monster.find_move() going North"
         elif d >= 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
             self.move(SCALE, 0)
+            if VERBOSE:
+                print "Monster.find_move() going East"
         elif d >= 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
             self.move(-SCALE, 0)
+            if VERBOSE:
+                print "Monster.find_move() going West"
 
         # If we can't figure out where to go, then just pick at random
-        while True:
-            cx, cy = self.get_map_pos()
-            #print "x,y = " +str( [x,y]) +"    cx,cy = " +str( [cx,cy] )
-            if x != cx or y != cy:
-                break
+        else:
+            while True:
+                cx, cy = self.get_map_pos()
+                #print "x,y = " +str( [x,y]) +"    cx,cy = " +str( [cx,cy] )
+                if x != cx or y != cy:
+                    break
 
-            r = randint(4)
-            if   r < 1 and not self.level_map.is_wall(x, y +1):
-                self.rect.y += SCALE
-            elif r < 2 and not self.level_map.is_wall(x, y -1):
-                self.rect.y -= SCALE
-            elif r < 3 and not self.level_map.is_wall(x +1, y):
-                self.rect.x += SCALE
-            elif           not self.level_map.is_wall(x -1, y):
-                self.rect.x -= SCALE
+                r = randint(4)
+                if   r < 1 and not self.level_map.is_wall(x, y +1):
+                    self.rect.y += SCALE
+                elif r < 2 and not self.level_map.is_wall(x, y -1):
+                    self.rect.y -= SCALE
+                elif r < 3 and not self.level_map.is_wall(x +1, y):
+                    self.rect.x += SCALE
+                elif           not self.level_map.is_wall(x -1, y):
+                    self.rect.x -= SCALE
+                if VERBOSE:
+                    print "Monster.find_move() random direction"
 
     def move(self, dx, dy):
         """ Try to move by dx or dy amount, backout the change if we hit another monster."""
@@ -430,6 +475,7 @@ class Monster(BaseSprite):
                     self.rect.bottom = block.rect.top
                 elif self.change_y < 0:
                     self.rect.top = block.rect.bottom
+
 
     def update(self):
         """ Update the Monster position, etc """
