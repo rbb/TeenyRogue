@@ -265,6 +265,7 @@ while not done:
     # Do the rendering
     screen.fill(BLACK)
     screen.blit(bg, (0,0))
+    status.update()
     floor_group.draw(screen)
     wall_group.draw(screen)
     powerup_group.draw(screen)
