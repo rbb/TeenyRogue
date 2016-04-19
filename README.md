@@ -4,8 +4,12 @@ Tasks
 - Leveling up
    - Graphics
    - Level up bonuses
-   - hit points to level structure/equation
-- Monster AI
+- Improve hit points to level array accuracy
+- Improve monster AI 
+- Torches on walls
+- Original or free artwork for sprites
+- targeting mechanism for non-ballistic powerups
+- blit hit points of monters on their sprites
 
 Hours
 --------------------------
@@ -16,6 +20,7 @@ Hours
  3/30, 3 hr
  4/4,  2 hr
  4/4,  6 hr
+ 4/18  3 hr
 
 Ghost 100
 Troll 100
