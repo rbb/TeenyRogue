@@ -76,7 +76,8 @@ class BaseSprite(pygame.sprite.Sprite):
         self.monsters = None
         self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
 
-        self.ballistic = None
+        self.my_ballistic = None
+        self.ballistic_sprites = None
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
         equipment = Equipment()
@@ -516,6 +517,7 @@ class Player(BaseSprite):
         self.equip_loc = None
         self.monsters = None
         self.all_sprites = None
+        self.ballistic_sprites = None
 
         self.my_turn = True
         self.stun_rate = 2
@@ -565,21 +567,21 @@ class Player(BaseSprite):
                 ballistic_change_y = 0
                 if key == pygame.K_LEFT or (key == pygame.K_j):
                     ballistic_change_x = -ballistic_delta
-                    print "ballistic LEFT"
+                    print "my_ballistic LEFT"
                 elif key == pygame.K_RIGHT or key == pygame.K_l:
                     ballistic_change_x = ballistic_delta
-                    print "ballistic RIGHT"
+                    print "my_ballistic RIGHT"
                 elif key == pygame.K_UP or key == pygame.K_i:
                     ballistic_change_y = -ballistic_delta
-                    print "ballistic UP"
+                    print "my_ballistic UP"
                 elif key == pygame.K_DOWN or key == pygame.K_k:
                     ballistic_change_y = ballistic_delta
-                    print "ballistic DOWN"
+                    print "my_ballistic DOWN"
 
-                self.ballistic = Ballistic((self.rect.x, self.rect.y), 
+                self.my_ballistic = Ballistic((self.rect.x, self.rect.y), 
                         self.weapon, self.walls, self.monsters, 
                         ballistic_change_x, ballistic_change_y, self)
-                self.all_sprites.add(self.ballistic)
+                self.ballistic_sprites.add(self.my_ballistic)
      
                 # Decrement the equipment
                 self.equipment.rm(self.equip_loc)
@@ -591,6 +593,7 @@ class Player(BaseSprite):
                 print "Transitioning to FIRE mode"
 
         elif self.PM_BALLISTIC_FIRE == self.mode:
+            #self.ballistic.update()
             pass
 
         elif self.PM_TARGETING == self.mode:
@@ -698,14 +701,14 @@ class Player(BaseSprite):
             pass
 
         elif self.PM_BALLISTIC_FIRE == self.mode:
-            if not self.ballistic.alive():
-                self.exp_pts += self.ballistic.exp_pts
-                print "Dead Monster worth " +str(self.ballistic.exp_pts) +" points"
-                print "Player killed Monster with ballistic. now at " +str(self.exp_pts) +" points"
-                self.ballistic = None
+            if not self.my_ballistic.alive():
+                self.exp_pts += self.my_ballistic.exp_pts
+                print "Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points"
+                print "Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points"
+                self.my_ballistic = None
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                print "Player.update(): ballistic hit something. Returning to MOVE mode"
+                print "Player.update(): my_ballistic hit something. Returning to MOVE mode"
                 self.my_turn = False
 
         elif self.PM_TARGETING == self.mode:

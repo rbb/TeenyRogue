@@ -63,6 +63,7 @@ for x in range(SCREEN_W/floor_rect.width):
 
 # Create the sprite group lists
 all_sprite_group = pygame.sprite.Group()
+ballistic_group = pygame.sprite.Group()
 powerup_group = pygame.sprite.Group()
 monster_group = pygame.sprite.Group()
 wall_group = pygame.sprite.Group()
@@ -198,6 +199,7 @@ player.monsters = monster_group
 player.powerups = powerup_group
 player.ladders = ladder_group
 player.all_sprites = all_sprite_group
+player.ballistic_sprites  = ballistic_group
 
 for m in monster_group:
     m.player = player
@@ -260,6 +262,7 @@ while not done:
     # Update actions
     player.update()
     monster_group.update()
+    ballistic_group.update()
     #all_sprite_group.update()
 
     # Do the rendering
@@ -272,6 +275,7 @@ while not done:
     ladder_group.draw(screen)
     monster_group.draw(screen)
     player_group.draw(screen)
+    ballistic_group.draw(screen)
     #all_sprite_group.draw(screen)
     pygame.display.flip()
     clock.tick(60)
