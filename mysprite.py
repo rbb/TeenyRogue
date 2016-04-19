@@ -62,8 +62,7 @@ class BaseSprite(pygame.sprite.Sprite):
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
-        self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
-        self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
+        self.set_map_pos(start_pos)
  
         # Set speed vector
         self.change_x = 0
@@ -84,6 +83,10 @@ class BaseSprite(pygame.sprite.Sprite):
         self.equipment = equipment
         self.exp_pts = 0
  
+    def set_map_pos(self, start_pos):
+        self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
+        self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
+
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
@@ -521,6 +524,8 @@ class Player(BaseSprite):
 
         self.my_turn = True
         self.stun_rate = 2
+
+        self.level_limits = [10000, 5200, 2000, 800]
  
     def changepos(self, key):
         if self.key_is_equip(key):
@@ -672,7 +677,7 @@ class Player(BaseSprite):
                 block.stun_level += self.stun_rate
                 print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
                 if block.hit_pts <= 0:
-                    self.exp_pts += block.exp_pts
+                    self.add_exp_pts(block.exp_pts)
                     print "Dead Monster worth " +str(block.exp_pts) +" points"
                     #print str(type(block))
                     #block.prn()
@@ -702,7 +707,7 @@ class Player(BaseSprite):
 
         elif self.PM_BALLISTIC_FIRE == self.mode:
             if not self.my_ballistic.alive():
-                self.exp_pts += self.my_ballistic.exp_pts
+                self.add_exp_pts(self.my_ballistic.exp_pts)
                 print "Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points"
                 print "Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points"
                 self.my_ballistic = None
@@ -714,6 +719,16 @@ class Player(BaseSprite):
         elif self.PM_TARGETING == self.mode:
             pass
         #print "Player.update complete"
+
+    def add_exp_pts(self, pts):
+        self.exp_pts += pts
+        N = len( self.level_limits )
+        for n in range(N):
+            if self.exp_pts > self.level_limits[n]:
+                if VERBOSE:
+                    print "add_exp_pts: exp_pts = " +str(self.exp_pts) +" > level_limits[" +str(n) +"] = " +str(self.level_limits[n])
+                self.level = (N-n) +1
+                break
  
  
  
@@ -745,14 +760,14 @@ class Wall(pygame.sprite.Sprite):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
 class Status(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, player): #, font):
+    def __init__(self, x, y, width, height, player, level, FONT): #, font):
         """ Constructor for the wall that the player and monsters can run into. """
         super(Status, self).__init__()
         self.x = x
         self.y = y
         self.w = width
         self.h = height
-        #self.font = font
+        self.font = FONT
  
         #self.heart = pygame.image.load('images/heart.png').convert_alpha()
         self.heart = pygame.image.load('images/heart.png')
@@ -780,7 +795,7 @@ class Status(pygame.sprite.Sprite):
             fname = 'images/level_' +str(n+1) +'.png'
             #self.level_images.append( pygame.image.load(fname).convert_alpha() )
             self.level_images.append( pygame.image.load(fname) )
-        self.level=0
+        self.level=level
         #self.new_level()
         #self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
@@ -825,11 +840,18 @@ class Status(pygame.sprite.Sprite):
                 x = n * (width) +SCREEN_W/2 +width/2
                 self.image.blit(self.equipment_images[self.player.equipment.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
-        #label = myfont.render(str(self.player.level), 1, GREENISH)
-        self.level = self.player.level -1
-        if self.level > self.max_level -1:
-            self.level = self.max_level -1
-        self.image.blit(self.level_images[self.level], (5, STATUS_H/2 -5) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        #self.level = self.player.level -1
+        #if self.level > self.max_level -1:
+        #    self.level = self.max_level -1
+        #self.image.blit(self.level_images[self.level], (5, STATUS_H/2 -5) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        plevel_label = self.font.render("P:" +str(self.player.level), 1, GREENISH)
+        self.image.blit(plevel_label, (20, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        level_label = self.font.render("L:" +str(self.level), 1, GREENISH)
+        self.image.blit(level_label, (SCREEN_W/3, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        score_label = self.font.render(str(self.player.exp_pts), 1, GREENISH)
+        self.image.blit(score_label, (2*SCREEN_W/3, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
 class Ladder(pygame.sprite.Sprite):
     def __init__(self, start_pos):
