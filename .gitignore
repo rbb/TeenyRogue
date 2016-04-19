@@ -1,0 +1,7 @@
+*.pyc
+images/unused/*
+*.swp
+*.swo
+.pylintrc
+tags
+.~lock.*
