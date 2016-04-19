@@ -38,12 +38,13 @@ YELLOW = (244, 241, 0)
 # Monster database
 #                                 hit          moves/ exp  stopped  ballistic
 #           Image name            pts, Damage, turn,  pts,  walls,    Damage,  Resurection
-M_DATA = [["images/bomba32.png",   2,    1,     1,    50,    False,    True ,     False ],    
-          ["images/ghost32.png",   2,    1,     1,    50,    True ,    False,     False ],
-          ["images/knight32.png",  2,    2,     1,    50,    False,    False,     False ],
+M_DATA = [["images/bomba32.png",   2,    1,     1,   200,    False,    True ,     False ],    
+          ["images/ghost32.png",   2,    1,     1,   100,    True ,    False,     False ],
+          ["images/knight32.png",  2,    2,     1,   250,    False,    False,     False ],
           ["images/rat32.png",     1,    1,     1,    50,    False,    False,     False ],
-          ["images/skull32.png",   2,    1,     1,    50,    False,    False,     True  ],
-          ["images/troll32.png",   2,    1,     1,    50,    False,    False,     False ] ]
+          ["images/skull32.png",   2,    1,     1,   100,    False,    False,     True  ],
+          ["images/troll32.png",   2,    1,     1,   100,    False,    False,     False ] ]
+#TODO: Fast Thing (wolf?)
 M_IMAGE_FNAME = 0
 M_HIT_PTS = 1
 M_DAMAGE = 2
