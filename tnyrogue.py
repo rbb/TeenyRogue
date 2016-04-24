@@ -145,7 +145,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
 
     #------------------------------------
     # Create the Monsters
-    for n in range( N_MONSTERS ):
+    for n in range( Nmonsters ):
         block_hit_monster_group = True
         block_hit_powerup_group = True
         while block_hit_monster_group or block_hit_powerup_group:
@@ -311,7 +311,7 @@ player = None
 
 while not done_game:
     Nmonsters, Npowerups = level_monsters_powerups(level)
-    print "Nmonsters, Npowerups = " +str( [Nmonsters, Npowerups] )
+    print "level, Nmonsters, Npowerups = " +str( [level, Nmonsters, Npowerups] )
     done_level, player = do_level(level, player, gm, Nmonsters, Npowerups)
     if player.hit_pts < 0:
         print "You DIED!!!!!!!!!!"
