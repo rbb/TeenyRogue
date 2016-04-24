@@ -1,4 +1,5 @@
 import sys
+import math
 import pygame
 from pygame.locals import *
 import numpy as np
@@ -47,7 +48,7 @@ screen = pygame.display.set_mode([SCREEN_W, SCREEN_H +STATUS_H])
 pygame.display.set_caption('TnyRogue')
 
 
-def do_level(level, player, gm):
+def do_level(level, player, gm, Nmonsters, Npowerups):
     bg = pygame.Surface([SCREEN_W, SCREEN_H +STATUS_H])
     bg.fill(BLACK)
     if PNG_BG:
@@ -238,16 +239,19 @@ def do_level(level, player, gm):
     n_monster_turn = 0 
     while not done_level:
         if not player.my_turn:
-            if n_monster_turn >= N_MONSTERS:
+            if n_monster_turn >= len(monster_list):
                 n_monster_turn = 0
                 player.my_turn = True
             else:
-                print "n_monster_turn = " +str(n_monster_turn )
-                n_monster_turn += 1
-                monster_list[n].my_turn = True
-                # TODO: separate Monster update() from changepos()/move() so that they can do ballistics
-                monster_list[n].changepos()
-                monster_list[n].my_turn = False
+                if monster_list[n].hit_pts <= 0:
+                    del monster_list[n]
+                else:
+                    print "n_monster_turn = " +str(n_monster_turn )
+                    n_monster_turn += 1
+                    monster_list[n].my_turn = True
+                    # TODO: separate Monster update() from changepos()/move() so that they can do ballistics
+                    monster_list[n].changepos()
+                    monster_list[n].my_turn = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
@@ -292,13 +296,23 @@ def do_level(level, player, gm):
             print "Level " +str(level) +" Complete!"
             done_level = True  # TODO: move on to next level instead
 
+    player.add_hit_pts(1)
     return done_level, player #End do_level()
+
+def level_monsters_powerups(level):
+    #monsters = round(math.log10(level) +1.0)
+    monsters = int(round(math.log10(level)*3.0 +1.0))
+    powerups = randint(round(math.log10(level) +2.0))
+    return monsters, powerups
 
 level = 1
 done_game = False
 player = None
+
 while not done_game:
-    done_level, player = do_level(level, player, gm)
+    Nmonsters, Npowerups = level_monsters_powerups(level)
+    print "Nmonsters, Npowerups = " +str( [Nmonsters, Npowerups] )
+    done_level, player = do_level(level, player, gm, Nmonsters, Npowerups)
     if player.hit_pts < 0:
         print "You DIED!!!!!!!!!!"
         done_game = True

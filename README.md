@@ -10,6 +10,7 @@ Tasks
 - Original or free artwork for sprites
 - targeting mechanism for non-ballistic powerups
 - blit hit points of monters on their sprites
+- Flashe screen on hits
 
 Hours
 --------------------------

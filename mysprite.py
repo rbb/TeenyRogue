@@ -222,6 +222,7 @@ class Ballistic(BaseSprite):
             if block.hit_pts <= 0:
                 print "Dead Monster. Do SOMETHING!!!!"
                 self.exp_pts = block.exp_pts
+                self.monsters.remove(block)
                 block.kill()
                 self.parent.update()
                 #TODO: block = None, so that memory gets cleared??? Maybe we just wait until the next level of monsters is created???
@@ -526,6 +527,11 @@ class Player(BaseSprite):
         self.stun_rate = 2
 
         self.level_limits = [10000, 5200, 2000, 800]
+
+    def add_hit_pts(self, pts):
+        self.hit_pts += pts
+        if self.hit_pts > self.max_hit_pts:
+            self.hit_pts = self.max_hit_pts
  
     def changepos(self, key):
         if self.key_is_equip(key):
@@ -683,6 +689,7 @@ class Player(BaseSprite):
                     #block.prn()
                     print "Play killed Monster. now at " +str(self.exp_pts) +" points"
                     #self.prn()
+                    self.monsters.remove(block)
                     block.kill()
 
             # Check and see if we hit the ladder
@@ -853,10 +860,12 @@ class Status(pygame.sprite.Sprite):
         score_label = self.font.render(str(self.player.exp_pts), 1, GREENISH)
         self.image.blit(score_label, (2*SCREEN_W/3, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
-class Ladder(pygame.sprite.Sprite):
+class Ladder(pygame.sprite.DirtySprite):
     def __init__(self, start_pos):
         super(Ladder, self).__init__()
         self.image = pygame.image.load('images/ladder32.png')
+        self.dirty = 2
+        self.blendmode = 0
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
