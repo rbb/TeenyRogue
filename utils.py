@@ -43,8 +43,10 @@ M_DATA = [["images/bomba32.png",   2,    1,     1,   200,    False,    True ,   
           ["images/knight32.png",  2,    2,     1,   250,    False,    False,     False ],
           ["images/rat32.png",     1,    1,     1,    50,    False,    False,     False ],
           ["images/skull32.png",   2,    1,     1,   100,    False,    False,     True  ],
-          ["images/troll32.png",   2,    1,     1,   100,    False,    False,     False ] ]
-#TODO: Fast Thing (wolf?)
+          ["images/troll32.png",   2,    1,     1,   100,    False,    False,     False ],
+          ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     False ],
+          ["images/treasure32.png",0,    0,     0,   500,    False,    False,     False ] ]
+
 M_IMAGE_FNAME = 0
 M_HIT_PTS = 1
 M_DAMAGE = 2
