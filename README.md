@@ -10,7 +10,8 @@ Tasks
 - Original or free artwork for sprites
 - targeting mechanism for non-ballistic powerups
 - blit hit points of monters on their sprites
-- Flashe screen on hits
+- Flash screen on hits
+- 'E' When no monsters goes to ladder
 
 Hours
 --------------------------
