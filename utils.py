@@ -44,8 +44,8 @@ M_DATA = [["images/bomba32.png",   2,    1,     1,   200,    False,    True ,   
           ["images/rat32.png",     1,    1,     1,    50,    False,    False,     False ],
           ["images/skull32.png",   2,    1,     1,   100,    False,    False,     True  ],
           ["images/troll32.png",   2,    1,     1,   100,    False,    False,     False ],
-          ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     False ],
-          ["images/treasure32.png",0,    0,     0,   500,    False,    False,     False ] ]
+          ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     False ] ]
+#          ["images/treasure32.png",0,    0,     0,   500,    False,    False,     False ] ]
 
 M_IMAGE_FNAME = 0
 M_HIT_PTS = 1
@@ -56,13 +56,14 @@ M_WALL_STOP = 5         # True: Walls stop movement, False: monster goes through
 M_BALLISTIC = 6         # Attacks do ballistic damage
 
 # Equipment database
-#             Image Name          Damage, ballistic, global, targeting
-E_DATA = [[None,                     0,      False,   False,  False ], # Note: first entry is bogus so logic in Player.use_equipment() works
-          ["images/dagger32.png",    1,      True,    False,  False ],
-          ["images/firebomb32.png",  2,      True,    False,  False ],
-          ["images/firestorm32.png", 1,      False,   True,   False ],
-          ["images/freeze32.png",    1,      False,   True,   False ],
-          ["images/lightning32.png", 1,      False,   False,  True  ] ]
+#             Image Name          Damage, ballistic, global, targeting, exp pts
+E_DATA = [[None,                     0,      False,   False,  False,      0 ], # Note: first entry is bogus so logic in Player.use_equipment() works
+          ["images/dagger32.png",    1,      True,    False,  False,      0 ],
+          ["images/firebomb32.png",  2,      True,    False,  False,      0 ],
+          ["images/firestorm32.png", 1,      False,   True,   False,      0 ],
+          ["images/freeze32.png",    1,      False,   True,   False,      0 ],
+          ["images/lightning32.png", 1,      False,   False,  True,       0 ],
+          ["images/treasure32.png",  0,      False,   False,  False,     500] ]
 E_NONE = 0     # Note: bogus entry for "No equpment"
 E_DAGGER = 1
 E_FIRE_BOMB = 2
@@ -78,6 +79,7 @@ E_DAMAGE = 1
 E_BALLISTIC = 2
 E_GLOBAL = 3
 E_TARGETING = 4
+E_EXP_PTS = 5
 
 #PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
 #             "images/freeze32.png", "images/lightning32.png" ]

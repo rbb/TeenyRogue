@@ -7,6 +7,7 @@ import time
 
 #TODO: Refactor E_* values and E_DATA into Equipment class
 class Equipment:
+    """A player's equipment list"""
     def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
         self.e_list = starting_equip
 
@@ -160,6 +161,7 @@ class Powerup(BaseSprite):
             sys.exit(0)
         image = pygame.image.load( fname )
         super(Powerup, self).__init__(start_pos, image)
+        self.exp_pts = E_DATA[self.e_type][E_EXP_PTS]
 
     def changepos(self, key):
         self.change_x = 0
@@ -757,8 +759,9 @@ class Player(BaseSprite):
             if self.powerups: #TODO require powerups as part of __init__(), so we don't need this test?
                 block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
                 for block in block_hit_list:
-                    #if self.allsprites:
-                    #    block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+                    #if VERBOSE:
+                    #    print "adding " +str(block.exp_pts) +" exp pts from powerup " +str(type(block)) +" = etype = " +str(block.e_type)
+                    self.exp_pts += block.exp_pts
                     self.equipment.add( block.e_type )
                     print self.equipment.get_list()
 
