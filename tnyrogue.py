@@ -44,9 +44,13 @@ pygame.font.init()
 #font = pygame.font.SysFont("monospace", 15)
 FONT = pygame.font.SysFont("Arial", 15) 
 #pygame.display.init()
-screen = pygame.display.set_mode([SCREEN_W, SCREEN_H +STATUS_H])
+#screen = pygame.display.set_mode([SCREEN_W, SCREEN_H +STATUS_H], pygame.DOUBLEBUF|pygame.HWSURFACE)
+screen = pygame.display.set_mode([SCREEN_W, SCREEN_H +STATUS_H], pygame.HWSURFACE)
 pygame.display.set_caption('TnyRogue')
 
+print ""
+print "screen.get_flags() = " +str(screen.get_flags())
+print ""
 
 def do_level(level, player, gm, Nmonsters, Npowerups):
     bg = pygame.Surface([SCREEN_W, SCREEN_H +STATUS_H])
@@ -149,10 +153,11 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         block_hit_monster_group = True
         block_hit_powerup_group = True
         while block_hit_monster_group or block_hit_powerup_group:
-            if TEST_MAP:
-                m = Monster( (3,2), gm )
-            else:
-                m = Monster( gm.randempty(), gm )
+            #if TEST_MAP:
+            #    m = Monster( (3,2), gm )
+            #else:
+            #    m = Monster( gm.randempty(), gm )
+            m = Monster( gm.randempty(), gm )
             block_hit_monster_group = pygame.sprite.spritecollide(m, monster_group, False)
             block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
             #block_hit_powerup_group = []
@@ -198,6 +203,9 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
     turn_sprite_list = [player]
     for m in monster_group:
         turn_sprite_list.append(m)
+        m.player = player
+        m.players = player_group
+        m.monsters = monster_group
 
     player.walls = wall_group
     player.monsters = monster_group
@@ -206,11 +214,6 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
     player.all_sprites = all_sprite_group
     player.ballistic_sprites  = ballistic_group
 
-    for m in monster_group:
-        m.player = player
-        m.players = player_group
-        this_monster_group = monster_group.copy()
-        m.monsters = this_monster_group.remove(m)
 
     if VERBOSE:
         print "Info: Player Done."
@@ -234,7 +237,6 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
     clock = pygame.time.Clock()
     done_level = False
     N = len(all_sprite_group)
-    n = 0
     player.my_turn = True
     n_monster_turn = 0 
     while not done_level:
@@ -243,27 +245,26 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 n_monster_turn = 0
                 player.my_turn = True
             else:
-                if monster_list[n].hit_pts <= 0:
-                    del monster_list[n]
+                if monster_list[n_monster_turn].hit_pts <= 0:
+                    del monster_list[n_monster_turn]
                 else:
-                    print "n_monster_turn = " +str(n_monster_turn )
-                    n_monster_turn += 1
-                    monster_list[n].my_turn = True
+                    print "acting on n_monster_turn = " +str(n_monster_turn )
+                    monster_list[n_monster_turn].my_turn = True
                     # TODO: separate Monster update() from changepos()/move() so that they can do ballistics
-                    monster_list[n].changepos()
-                    monster_list[n].my_turn = False
+                    monster_list[n_monster_turn].changepos()
+                    monster_list[n_monster_turn].my_turn = False
+                n_monster_turn += 1
+            print "n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
                 done_level = pygame.QUIT
             elif event.type == pygame.KEYUP and event.key == pygame.K_q:
                 done_level = pygame.QUIT
-            else:
-                if player.my_turn:
-                    if event.type == pygame.KEYUP:
-                        print "Player Turn"
-                        player.changepos(event.key)   # TODO player.my_turn = False in changepos()
-                        player.update()
+            elif player.my_turn and event.type == pygame.KEYUP:
+                print "Player Turn"
+                player.changepos(event.key)   # TODO player.my_turn = False in changepos()
+                #player.update()
 
 
 
@@ -285,7 +286,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         player_group.draw(screen)
         ballistic_group.draw(screen)
         #all_sprite_group.draw(screen)
-        pygame.display.flip()
+        #pygame.display.flip()
+        pygame.display.update()
         clock.tick(60)
 
         if player.hit_pts <= 0:
@@ -310,7 +312,11 @@ done_game = False
 player = None
 
 while not done_game:
-    Nmonsters, Npowerups = level_monsters_powerups(level)
+    if TEST_MAP:
+        Nmonsters = N_MONSTERS
+        Npowerups = N_POWERUPS 
+    else:
+        Nmonsters, Npowerups = level_monsters_powerups(level)
     print "level, Nmonsters, Npowerups = " +str( [level, Nmonsters, Npowerups] )
     done_level, player = do_level(level, player, gm, Nmonsters, Npowerups)
     if player.hit_pts < 0:
