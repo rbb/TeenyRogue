@@ -368,7 +368,7 @@ class Monster(BaseSprite):
                 if VERBOSE:
                     print "Monster.changepos: doing intermediate update()"
                 self.update()
-                time.sleep(0.2)
+                pygame.time.wait( 200 ) #milliseconds
 
         
     def find_move(self):
