@@ -38,14 +38,15 @@ YELLOW = (244, 241, 0)
 # Monster database
 #                                 hit          moves/ exp  stopped  ballistic
 #           Image name            pts, Damage, turn,  pts,  walls,    Damage,  Resurection
-M_DATA = [["images/bomba32.png",   2,    1,     1,   200,    False,    True ,     False ],    
-          ["images/ghost32.png",   2,    1,     1,   100,    True ,    False,     False ],
-          ["images/knight32.png",  2,    2,     1,   250,    False,    False,     False ],
-          ["images/rat32.png",     1,    1,     1,    50,    False,    False,     False ],
-          ["images/skull32.png",   2,    1,     1,   100,    False,    False,     True  ],
-          ["images/troll32.png",   2,    1,     1,   100,    False,    False,     False ],
-          ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     False ] ]
-#          ["images/treasure32.png",0,    0,     0,   500,    False,    False,     False ] ]
+M_DATA = [["images/bomba32.png",   2,    1,     1,   200,    False,    True ,     0 ],    
+          ["images/ghost32.png",   2,    1,     1,   100,    True ,    False,     0 ],
+          ["images/knight32.png",  2,    2,     1,   250,    False,    False,     0 ],
+          ["images/rat32.png",     1,    1,     1,    50,    False,    False,     0 ],
+          ["images/skull32.png",   2,    1,     1,   100,    False,    False,     2  ],
+          ["images/troll32.png",   2,    1,     1,   100,    False,    False,     0 ],
+          ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     0 ] ]
+#          ["images/treasure32.png",0,    0,     0,   500,    False,    False,     0 ] ]
+M_SKULL = 4
 
 M_IMAGE_FNAME = 0
 M_HIT_PTS = 1
@@ -54,6 +55,7 @@ M_MOVES = 3             # Number of moves/attacks per turn
 M_EXP_PTS = 4           # Number of experience points earned for killing the monster
 M_WALL_STOP = 5         # True: Walls stop movement, False: monster goes through walls
 M_BALLISTIC = 6         # Attacks do ballistic damage
+M_RESURECTION = 7       # Monster comes back from the dead, in this number of moves, if 0 then never.
 
 # Equipment database
 #             Image Name          Damage, ballistic, global, targeting, exp pts

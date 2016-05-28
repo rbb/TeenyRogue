@@ -157,7 +157,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             #    m = Monster( (3,2), gm )
             #else:
             #    m = Monster( gm.randempty(), gm )
-            m = Monster( gm.randempty(), gm )
+            #m = Monster( gm.randempty(), gm )
+            m = Monster( gm.randempty(), gm, M_SKULL )      #---------- DEBUG -------------
             block_hit_monster_group = pygame.sprite.spritecollide(m, monster_group, False)
             block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
             #block_hit_powerup_group = []
@@ -245,7 +246,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 n_monster_turn = 0
                 player.my_turn = True
             else:
-                if monster_list[n_monster_turn].hit_pts <= 0:
+                m = monster_list[n_monster_turn]
+                if m.hit_pts <= 0 and m.resurection_pts == 0:
                     del monster_list[n_monster_turn]
                 else:
                     print "acting on n_monster_turn = " +str(n_monster_turn )
@@ -298,7 +300,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             print "Level " +str(level) +" Complete!"
             done_level = True  # TODO: move on to next level instead
 
-    player.add_hit_pts(1)
+    player.heal(1)
     return done_level, player #End do_level()
 
 def level_monsters_powerups(level):

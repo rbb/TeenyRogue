@@ -77,6 +77,9 @@ class BaseSprite(pygame.sprite.Sprite):
         self.walls = None
         self.monsters = None
         self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
+        self.resurection_pts = 0
+        self.resurection_cnt = 0
+        self.not_dead_yet = True
 
         self.my_ballistic = None
         self.ballistic_sprites = None
@@ -137,6 +140,21 @@ class BaseSprite(pygame.sprite.Sprite):
 
             return True
         return False
+
+    def wound (self, pts, stun):
+        self.hit_pts -= pts
+        if self.hit_pts < 0:
+            self.hit_pts = 0
+        if self.resurection_pts > 0 and self.hit_pts == 0:
+            self.resurection_cnt = self.resurection_pts
+        else:
+            self.stun_level += stun
+
+    def heal(self, pts):
+        self.hit_pts += pts
+        if self.hit_pts > self.max_hit_pts:
+            self.hit_pts = self.max_hit_pts
+ 
 
 class Powerup(BaseSprite):
     """ Powerups that the player can grab"""
@@ -214,7 +232,7 @@ class Ballistic(BaseSprite):
         pass
 
     def update(self):
-        """ Update the ballistic position. """
+        """ Update the Ballistic position. """
         super(Ballistic, self).update()
         if VERBOSE:
             print "Ballistic.update(): x,y = " +str([self.rect.x, self.rect.y])
@@ -323,9 +341,11 @@ class Monster(BaseSprite):
         super(Monster, self).__init__(start_pos, image)
         self.base_image = image
         self.hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
+        self.max_hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
         self.moves = M_DATA[self.m_type][M_MOVES] 
         self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
         self.ballistic = M_DATA[self.m_type][M_BALLISTIC] 
+        self.resurection_pts = M_DATA[self.m_type][M_RESURECTION] 
         self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
         self.damage = M_DATA[self.m_type][M_DAMAGE] 
         self.player = None
@@ -373,6 +393,15 @@ class Monster(BaseSprite):
         
     def find_move(self):
         """ The logic for the moster movement (AI) """
+        # First, check to see if we're dead, waiting to be resurected
+        if self.hit_pts == 0:
+            self.resurection_cnt -= 1
+            print "Monster.find_move: resurection_cnt = " +str(self.resurection_cnt)
+            if self.resurection_cnt <= 0:
+                self.heal( self.resurection_pts )
+            else:
+                return
+
         # First, try to move towards the player
         collision = False
         x,y = self.get_map_pos()
@@ -542,6 +571,10 @@ class Monster(BaseSprite):
         if self.stun_level > 0:
             self.stun.next()
             self.image = self.stun.sprite
+        elif self.resurection_cnt > 0:
+            self.image = self.base_image.copy()
+            pygame.draw.line(self.image, YELLOW, (0,0), (32,32), 5) 
+            pygame.draw.line(self.image, YELLOW, (0,32), (32,0), 5) 
         else:
             self.image = self.base_image 
         #TODO:  self.image.blit(self.hits)
@@ -583,11 +616,6 @@ class Player(BaseSprite):
 
         self.level_limits = [10000, 5200, 2000, 800]
 
-    def add_hit_pts(self, pts):
-        self.hit_pts += pts
-        if self.hit_pts > self.max_hit_pts:
-            self.hit_pts = self.max_hit_pts
- 
     def changepos(self, key):
         if self.key_is_equip(key):
             #self.use_equipment(key)
@@ -734,18 +762,22 @@ class Player(BaseSprite):
 
                 # Do the damage
                 #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
-                block.hit_pts -= self.damage
-                block.stun_level += self.stun_rate
+                #block.hit_pts -= self.damage
+                block.wound( self.damage, self.stun_rate )
+                #block.stun_level += self.stun_rate
                 print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
                 if block.hit_pts <= 0:
-                    self.add_exp_pts(block.exp_pts)
-                    print "Dead Monster worth " +str(block.exp_pts) +" points"
-                    #print str(type(block))
-                    #block.prn()
-                    print "Play killed Monster. now at " +str(self.exp_pts) +" points"
-                    #self.prn()
-                    self.monsters.remove(block)
-                    block.kill()
+                    if block.not_dead_yet or block.resurection_pts == 0:
+                        self.add_exp_pts(block.exp_pts)
+                        print "Dead Monster worth " +str(block.exp_pts) +" points"
+                        block.not_dead_yet = False
+                        #print str(type(block))
+                        #block.prn()
+                        print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
+                        #self.prn()
+                        if block.resurection_pts == 0:
+                            self.monsters.remove(block)
+                            block.kill()
 
             # Check and see if we hit the ladder
             block_hit_list = pygame.sprite.spritecollide(self, self.ladders, False)
