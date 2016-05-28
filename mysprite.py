@@ -4,6 +4,7 @@ import numpy as np
 from utils import *
 import os
 import time
+from decal import Decal
 
 #TODO: Refactor E_* values and E_DATA into Equipment class
 class Equipment:
@@ -355,6 +356,8 @@ class Monster(BaseSprite):
         self.stun_level = 0
         self.recover_rate = 1
         self.stun = Stun(self.image)
+        self.hit_decal = Decal(RED, 1)
+        self.hit_decal.setv(self.hit_pts)
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
@@ -568,16 +571,16 @@ class Monster(BaseSprite):
 
     def update(self):
         """ Update the Monster position, etc """
+        self.hit_decal.setv(self.hit_pts)
         if self.stun_level > 0:
             self.stun.next()
             self.image = self.stun.sprite
-        elif self.resurection_cnt > 0:
-            self.image = self.base_image.copy()
-            pygame.draw.line(self.image, YELLOW, (0,0), (32,32), 5) 
-            pygame.draw.line(self.image, YELLOW, (0,32), (32,0), 5) 
         else:
-            self.image = self.base_image 
-        #TODO:  self.image.blit(self.hits)
+            self.image = self.base_image.copy()
+            if self.resurection_cnt > 0:
+                pygame.draw.line(self.image, YELLOW, (0,0), (32,32), 5) 
+                pygame.draw.line(self.image, YELLOW, (0,32), (32,0), 5) 
+        self.image.blit(self.hit_decal.image, (SCALE-self.hit_decal.w,SCALE-self.hit_decal.h) )  # Lower Right
 
 
 class Player(BaseSprite):

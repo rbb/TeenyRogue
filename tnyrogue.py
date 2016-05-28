@@ -157,8 +157,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             #    m = Monster( (3,2), gm )
             #else:
             #    m = Monster( gm.randempty(), gm )
-            #m = Monster( gm.randempty(), gm )
-            m = Monster( gm.randempty(), gm, M_SKULL )      #---------- DEBUG -------------
+            m = Monster( gm.randempty(), gm )
+            #m = Monster( gm.randempty(), gm, M_SKULL )      #---------- DEBUG -------------
             block_hit_monster_group = pygame.sprite.spritecollide(m, monster_group, False)
             block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
             #block_hit_powerup_group = []
@@ -277,7 +277,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         #all_sprite_group.update()
 
         # Do the rendering
-        screen.fill(BLACK)
+        screen.fill(WHITE)
         screen.blit(bg, (0,0))
         status.update()
         floor_group.draw(screen)
