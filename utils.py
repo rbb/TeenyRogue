@@ -57,7 +57,7 @@ M_WALL_STOP = 5         # True: Walls stop movement, False: monster goes through
 M_BALLISTIC = 6         # Attacks do ballistic damage
 M_RESURECTION = 7       # Monster comes back from the dead, in this number of moves, if 0 then never.
 
-# Equipment database
+# Equipment (powerup) database
 #             Image Name          Damage, ballistic, global, targeting, exp pts
 E_DATA = [[None,                     0,      False,   False,  False,      0 ], # Note: first entry is bogus so logic in Player.use_equipment() works
           ["images/dagger32.png",    1,      True,    False,  False,      0 ],
@@ -85,6 +85,16 @@ E_EXP_PTS = 5
 
 #PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
 #             "images/freeze32.png", "images/lightning32.png" ]
+
+#           Image Name             Function Name
+L_DATA = [["images/thor.png",          "bonus_lightning"],
+          ["images/bluedrop.png",      "bonus_freeze_throw"],
+          ["images/flame.png",         "bonus_flame_throw"],
+          ["images/flamebomb.png",     "bonus_flame_bomb"],
+          ["images/freezebomb.png",    "bonus_freezebomb"],
+          ["images/dagger32.png",      "bonus_dagger_damage"],
+          ["images/dagger_bundle.png", "bonus_dagger_bundle"],
+          ];
 
  
 def randint(maxval=1):

@@ -9,7 +9,8 @@ from decal import Decal
 #TODO: Refactor E_* values and E_DATA into Equipment class
 class Equipment:
     """A player's equipment list"""
-    def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
+    #def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
+    def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):
         self.e_list = starting_equip
 
     def add(self, e):
@@ -69,17 +70,17 @@ class BaseSprite(pygame.sprite.Sprite):
         self.set_map_pos(start_pos)
  
         # Set speed vector
-        self.change_x = 0
-        self.change_y = 0
+        self.change_x = 0           # the commanded change this turn
+        self.change_y = 0           # the commanded change this turn
         #self.dx = self.image.get_size()[0]
         #self.dy = self.image.get_size()[1]
-        self.dx = SCALE
-        self.dy = SCALE
+        self.dx = SCALE             # This is the speed that the sprite will move normally
+        self.dy = SCALE             # This is the speed that the sprite will move normally
         self.walls = None
         self.monsters = None
         self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
-        self.resurection_pts = 0
-        self.resurection_cnt = 0
+        self.resurection_pts = 0    # This is how many turns a monster stays down before being re-animated, if 0 then the monster dies instead
+        self.resurection_cnt = 0    # The current number of turns before being re-animated
         self.not_dead_yet = True
 
         self.my_ballistic = None
@@ -109,7 +110,7 @@ class BaseSprite(pygame.sprite.Sprite):
         #elif key == pygame.K_DOWN:
         #    self.change_y = self.dy
 
-    def update(self):
+    def update(self):      # BaseSprite
         pass
  
     def prn(self):
@@ -143,9 +144,10 @@ class BaseSprite(pygame.sprite.Sprite):
         return False
 
     def wound (self, pts, stun):
-        self.hit_pts -= pts
+        if self.hit_pts > 0:
+            self.hit_pts -= pts
         if self.hit_pts < 0:
-            self.hit_pts = 0
+            self.hit_pts = 0     # Note: this should be redunant now, but keep it as a recovery mechanism
         if self.resurection_pts > 0 and self.hit_pts == 0:
             self.resurection_cnt = self.resurection_pts
         else:
@@ -194,7 +196,7 @@ class Powerup(BaseSprite):
         #elif key == pygame.K_DOWN:
         #    self.change_y = self.dy
 
-    def update(self):
+    def update(self):      # Powerup
         pass
  
 
@@ -232,11 +234,11 @@ class Ballistic(BaseSprite):
     def changepos(self, key):
         pass
 
-    def update(self):
+    def update(self):   # Ballistic
         """ Update the Ballistic position. """
         super(Ballistic, self).update()
-        if VERBOSE:
-            print "Ballistic.update(): x,y = " +str([self.rect.x, self.rect.y])
+        #if VERBOSE:
+        #    print "Ballistic.update(): x,y = " +str([self.rect.x, self.rect.y])
         self.rect.x += self.change_x
         self.rect.y += self.change_y
         block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
@@ -569,7 +571,7 @@ class Monster(BaseSprite):
         return collision
             
 
-    def update(self):
+    def update(self):      # Monster
         """ Update the Monster position, etc """
         self.hit_decal.setv(self.hit_pts)
         if self.stun_level > 0:
@@ -610,15 +612,23 @@ class Player(BaseSprite):
 
         self.ballistic = None
         self.equip_loc = None
+
+        # sprite groups
         self.monsters = None
         self.all_sprites = None
         self.ballistic_sprites = None
+        self.n_target_monster = None
+
+        # This is REALLY dumb. monsters is a sprite group, which is NOT iterable.
+        # So, we need something that is iterable, to select a monster when targeting.
+        self.monster_list = None
 
         self.my_turn = True
         self.stun_rate = 2
 
         self.level_limits = [10000, 5200, 2000, 800]
 
+    # Player changepos()
     def changepos(self, key):
         if self.key_is_equip(key):
             #self.use_equipment(key)
@@ -635,6 +645,9 @@ class Player(BaseSprite):
                 if E_DAGGER == e or E_FIRE_BOMB == e:
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
+                if E_FIRESTORM == e or E_FREEZE_STORM == e or E_LIGHTNING == e:
+                    self.mode = self.PM_TARGETING
+                    self.weapon = e
         elif self.PM_MOVE == self.mode:
             self.change_x = 0
             self.change_y = 0
@@ -650,6 +663,19 @@ class Player(BaseSprite):
             elif key == pygame.K_DOWN or key == pygame.K_k:
                 self.change_y = self.dy
                 self.my_turn = False
+            elif key == pygame.K_e:
+                #print self.monsters
+                #print len(self.monsters)
+                if len(self.monsters) == 0:
+                    # Note ladders is a sprite group, and can not be addressed as ldders[0]
+                    for l in self.ladders: 
+                        self.change_x = l.rect.x - self.rect.x
+                        self.change_y = l.rect.y - self.rect.y
+                    print ("exit to ladder:")
+                    print ("   dx,dy  =:" +str(self.dx) +',' + str(self.dy))
+                    print ("   ladder =:" +str(l.rect.x) +',' + str(l.rect.y))
+                    print ("   change =:" +str(self.change_x) +',' + str(self.change_y))
+                    #self.my_turn = False
         elif self.PM_BALLISTIC_SELECT == self.mode:
             if pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
@@ -699,16 +725,60 @@ class Player(BaseSprite):
             if pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                self.n_target_monster = None
+                self.equip_loc = None
                 print "Returning to MOVE mode"
+
+            if pygame.K_j == key or pygame.K_k == key or pygame.K_DOWN == key or pygame.K_UP == key :
+                N = len(self.monster_list)
+                if N == 0:
+                    self.mode = self.PM_MOVE
+                    self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                    self.n_target_monster = None
+                    print "Returning to MOVE mode, targeting found no monsters"
+                if pygame.K_k == key or pygame.K_DOWN == key:
+                    if self.n_target_monster == None:
+                        self.n_target_monster = 0
+                    else:
+                        if self.n_target_monster == N-1:
+                            self.n_target_monster == 0
+                        else:
+                            self.n_target_monster += 1
+                    print "Targeting (down) selected monster " +str(self.n_target_monster)
+                if pygame.K_i == key or pygame.K_UP == key:
+                    if self.n_target_monster == None:
+                        self.n_target_monster = N-1
+                    else:
+                        if self.n_target_monster == N-1:
+                            self.n_target_monster == N-1
+                        else:
+                            self.n_target_monster -= 1 
+                    print "Targeting (up) selected monster " +str(self.n_target_monster)
+
+            if pygame.K_RETURN == key:
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                self.n_target_monster = None
+                print "Got a request to deploy a targeted weapon, but alas, targeting is not implemented"
+                     
         else:
             print "Unknown Player Mode"
             sys.exit(0)
 
 
     def key_is_move(self, key):
+        # TODO: Use w,a,s,d like arrow keys. Use h,j,k,l like vim
         if ( key == pygame.K_LEFT  or key == pygame.K_j or
              key == pygame.K_RIGHT or key == pygame.K_l or
              key == pygame.K_UP    or key == pygame.K_i or
+             key == pygame.K_DOWN  or key == pygame.K_k ):
+            return True
+        else:
+            return False
+
+    def key_is_target_select(self, key):
+        # TODO: Use w,a,s,d like arrow keys. Use h,j,k,l like vim
+        if ( key == pygame.K_UP    or key == pygame.K_i or
              key == pygame.K_DOWN  or key == pygame.K_k ):
             return True
         else:
@@ -745,42 +815,49 @@ class Player(BaseSprite):
                     self.rect.bottom = block.rect.top
                 elif self.change_y < 0:
                     self.rect.top = block.rect.bottom
+
+                self.my_turn = True
                 return
      
      
             # Check and see if we hit any Monsters
             block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
             for block in block_hit_list:
-                # Reset our position based on the left/right of the object.
-                if self.change_x > 0:
-                    self.rect.right = block.rect.left
-                elif self.change_x < 0:
-                    self.rect.left = block.rect.right
+                # If the monster is in 'Zombie' mode, then let us walk over him
+                if block.resurection_cnt and block.hit_pts == 0:
+                    pass
 
-                # Reset our position based on the top/bottom of the object.
-                if self.change_y > 0:
-                    self.rect.bottom = block.rect.top
-                elif self.change_y < 0:
-                    self.rect.top = block.rect.bottom
+                else:
+                    # Reset our position based on the left/right of the object.
+                    if self.change_x > 0:
+                        self.rect.right = block.rect.left
+                    elif self.change_x < 0:
+                        self.rect.left = block.rect.right
 
-                # Do the damage
-                #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
-                #block.hit_pts -= self.damage
-                block.wound( self.damage, self.stun_rate )
-                #block.stun_level += self.stun_rate
-                print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
-                if block.hit_pts <= 0:
-                    if block.not_dead_yet or block.resurection_pts == 0:
-                        self.add_exp_pts(block.exp_pts)
-                        print "Dead Monster worth " +str(block.exp_pts) +" points"
-                        block.not_dead_yet = False
-                        #print str(type(block))
-                        #block.prn()
-                        print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
-                        #self.prn()
-                        if block.resurection_pts == 0:
-                            self.monsters.remove(block)
-                            block.kill()
+                    # Reset our position based on the top/bottom of the object.
+                    if self.change_y > 0:
+                        self.rect.bottom = block.rect.top
+                    elif self.change_y < 0:
+                        self.rect.top = block.rect.bottom
+
+                    # Do the damage
+                    #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
+                    #block.hit_pts -= self.damage
+                    block.wound( self.damage, self.stun_rate )
+                    #block.stun_level += self.stun_rate
+                    print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
+                    if block.hit_pts <= 0:
+                        if block.not_dead_yet or block.resurection_pts == 0:
+                            self.add_exp_pts(block.exp_pts)
+                            print "Dead Monster worth " +str(block.exp_pts) +" points"
+                            block.not_dead_yet = False
+                            #print str(type(block))
+                            #block.prn()
+                            print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
+                            #self.prn()
+                            if block.resurection_pts == 0:
+                                self.monsters.remove(block)
+                                block.kill()
 
             # Check and see if we hit the ladder
             block_hit_list = pygame.sprite.spritecollide(self, self.ladders, False)
@@ -930,10 +1007,17 @@ class Status(pygame.sprite.Sprite):
 
         # Draw Equipment
         width = 25
+        if self.player.equip_loc != None:
+            # Draw box around selected equipment
+            n = self.player.equip_loc
+            x = n * (width) +SCREEN_W/2 +width/2
+            pygame.draw.rect(self.image, GRAY_37, (x+6,y+8, width, width) )
         for n in range(self.player.equipment.length()):
+            # Draw the equipment storage boxes/locations
             x = n * (width) +SCREEN_W/2 +width/2
             pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
         for n in range( self.player.equipment.length() ):
+            # Draw the equipment
             if self.player.equipment.get(n):
                 x = n * (width) +SCREEN_W/2 +width/2
                 self.image.blit(self.equipment_images[self.player.equipment.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
@@ -962,6 +1046,7 @@ class Ladder(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
         self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
+        self.pos = start_pos                 # None: this is MAP position
  
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)

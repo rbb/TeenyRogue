@@ -1,28 +1,35 @@
 
 Tasks
 -------------------------
+* Fix moving into walls lets monsters move
+o targeting mechanism for non-ballistic powerups
+   - highlight selected monster
+   - inflict the damage
+- Highlight selected powerups (ie when in targeting or ballistic mode, show the powerup selected)
 - Leveling up
    - Graphics
    - Level up bonuses
 - Improve hit points to level array accuracy
 - Improve monster AI 
+   - Ghosts should prefer going into walls
+   - Shooters shoud perfer to not line up with player, or maybe at 50% chance?
 - Torches on walls
 - Original or free artwork for sprites
-- targeting mechanism for non-ballistic powerups
-- blit hit points of monters on their sprites
+* blit hit points of monters on their sprites
 - Flash screen on hits
 - 'E' When no monsters goes to ladder
+- Change sprites when they are stunned
+- show levelup bonus status (ie vampire, +damage on firestorm, etc)
+- zombie monsters (ie skeletons)
+   - should not continue to take damage, until they re-animate
+   * Allow player to walk over zombie monsters (ie skeletons)
+- Daggers should be 3, and show count in equipment status
+- Refactor, so that there is some sort of world state variable that can be passed around, 
+  instead of putting a bunch of stuff in the 'player' variable
+- Use 'p' key to print current game state?
+- Fix monsters going through diagnal walls
+- Fix monsters going into walls (only at edges)????
 
-Hours
---------------------------
- 3/25, 3 hr
- 3/27, 8 hr
- 3/28, 8 hr
- 3/29, 4 hr
- 3/30, 3 hr
- 4/4,  2 hr
- 4/4,  6 hr
- 4/18  3 hr
 
 Ghost 100
 Troll 100

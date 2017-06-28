@@ -159,6 +159,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             #    m = Monster( gm.randempty(), gm )
             m = Monster( gm.randempty(), gm )
             #m = Monster( gm.randempty(), gm, M_SKULL )      #---------- DEBUG -------------
+            #m = Monster( gm.randempty(), gm, 6 )      #---------- DEBUG -------------
             block_hit_monster_group = pygame.sprite.spritecollide(m, monster_group, False)
             block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
             #block_hit_powerup_group = []
@@ -210,6 +211,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
 
     player.walls = wall_group
     player.monsters = monster_group
+    player.monster_list = monster_list
     player.powerups = powerup_group
     player.ladders = ladder_group
     player.all_sprites = all_sprite_group
