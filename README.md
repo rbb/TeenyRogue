@@ -28,7 +28,10 @@ o targeting mechanism for non-ballistic powerups
   instead of putting a bunch of stuff in the 'player' variable
 - Use 'p' key to print current game state?
 - Fix monsters going through diagnal walls
+   - Original doesn't seem to have diagnal walls, always a right angle
 - Fix monsters going into walls (only at edges)????
+- Animate each monster/player move
+   - Maybe add a half tile frame?
 
 
 Ghost 100

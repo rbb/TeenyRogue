@@ -21,8 +21,8 @@ class Player(BaseSprite):
         self.max_hit_pts = 3
         self.hit_pts = 2
         self.damage = 1    # ability to do damage
-        equipment = Equipment()
-        self.equipment = equipment
+        equipmentl = EquipmentList()
+        self.equipmentl = equipmentl
         self.level = 1
         self.powerups = None
 
@@ -59,11 +59,11 @@ class Player(BaseSprite):
             self.equip_loc = key - pygame.K_1
             if VERBOSE:
                 print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(self.equip_loc) )
-                #print( "Player.use_equipment(): equipment = " +str(self.equipment) )
-            if self.equipment.get(self.equip_loc):
+                #print( "Player.use_equipment(): equipmentl = " +str(self.equipmentl) )
+            if self.equipmentl.get(self.equip_loc):
                 # If we got here, then the eqipment location is something other than none
-                e = self.equipment.get(self.equip_loc)
-                print( "Player.use_equipment(" +str(key) +"): equipment["+str(self.equip_loc) +"] = " +str(e) )
+                e = self.equipmentl.get(self.equip_loc)
+                print( "Player.use_equipment(" +str(key) +"): equipmentl["+str(self.equip_loc) +"] = " +str(e) )
                 if E_DAGGER == e or E_FIRE_BOMB == e:
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
@@ -128,8 +128,8 @@ class Player(BaseSprite):
                         ballistic_change_x, ballistic_change_y, self)
                 self.ballistic_sprites.add(self.my_ballistic)
      
-                # Decrement the equipment
-                self.equipment.rm(self.equip_loc)
+                # Decrement the equipmentl
+                self.equipmentl.rm(self.equip_loc)
                 self.equip_loc = None
 
                 # Cleanup
@@ -209,7 +209,7 @@ class Player(BaseSprite):
     def key_is_equip(self, key):
         if key >= pygame.K_1 and key <= pygame.K_9:
             equip_loc = key - pygame.K_1
-            if equip_loc < self.equipment.length():
+            if equip_loc < self.equipmentl.length():
                 return True
             else:
                 return False
@@ -296,8 +296,8 @@ class Player(BaseSprite):
                     #if VERBOSE:
                     #    print "adding " +str(block.exp_pts) +" exp pts from powerup " +str(type(block)) +" = etype = " +str(block.e_type)
                     self.exp_pts += block.exp_pts
-                    self.equipment.add( block.e_type )
-                    print self.equipment.get_list()
+                    self.equipmentl.add( block.equip.e_type )
+                    print self.equipmentl.get_list()
 
         elif self.PM_BALLISTIC_SELECT == self.mode:
             pass

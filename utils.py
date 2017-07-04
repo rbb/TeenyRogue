@@ -57,32 +57,6 @@ M_WALL_STOP = 5         # True: Walls stop movement, False: monster goes through
 M_BALLISTIC = 6         # Attacks do ballistic damage
 M_RESURECTION = 7       # Monster comes back from the dead, in this number of moves, if 0 then never.
 
-# Equipment (powerup) database
-#             Image Name          Damage, ballistic, global, targeting, exp pts
-E_DATA = [[None,                     0,      False,   False,  False,      0 ], # Note: first entry is bogus so logic in Player.use_equipment() works
-          ["images/dagger32.png",    1,      True,    False,  False,      0 ],
-          ["images/firebomb32.png",  2,      True,    False,  False,      0 ],
-          ["images/firestorm32.png", 1,      False,   True,   False,      0 ],
-          ["images/freeze32.png",    1,      False,   True,   False,      0 ],
-          ["images/lightning32.png", 1,      False,   False,  True,       0 ],
-          ["images/treasure32.png",  0,      False,   False,  False,     500] ]
-E_NONE = 0     # Note: bogus entry for "No equpment"
-E_DAGGER = 1
-E_FIRE_BOMB = 2
-E_FIRESTORM = 3
-#E_FREEZE_BOMB = 4
-E_FREEZE_STORM = 4
-E_LIGHTNING = 5
-# TODO other equipment
-E_MAX = 6
-
-E_IMAGE = 0
-E_DAMAGE = 1
-E_BALLISTIC = 2
-E_GLOBAL = 3
-E_TARGETING = 4
-E_EXP_PTS = 5
-
 #PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
 #             "images/freeze32.png", "images/lightning32.png" ]
 
