@@ -32,7 +32,6 @@ class BaseSprite(pygame.sprite.Sprite):
         self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
         self.resurection_pts = 0    # This is how many turns a monster stays down before being re-animated, if 0 then the monster dies instead
         self.resurection_cnt = 0    # The current number of turns before being re-animated
-        self.not_dead_yet = True
 
         self.my_ballistic = None
         self.ballistic_sprites = None
@@ -93,6 +92,7 @@ class BaseSprite(pygame.sprite.Sprite):
         return False
 
     def wound (self, pts, stun):
+        print "BaseSprite.do_damage(): pre hit_pts = " +str(self.hit_pts)
         if self.hit_pts > 0:
             self.hit_pts -= pts
         if self.hit_pts < 0:
@@ -101,6 +101,7 @@ class BaseSprite(pygame.sprite.Sprite):
             self.resurection_cnt = self.resurection_pts
         else:
             self.stun_level += stun
+        print "BaseSprite.do_damage(): new hit_pts = " +str(self.hit_pts)
 
     def heal(self, pts):
         self.hit_pts += pts
@@ -291,6 +292,7 @@ class Monster(BaseSprite):
         self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
         self.ballistic = M_DATA[self.m_type][M_BALLISTIC] 
         self.resurection_pts = M_DATA[self.m_type][M_RESURECTION] 
+        self.not_dead_yet = True    # This is used in conjunction with resurection_pts to prevent gaining exp pts every time a resurected monster is killed
         self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
         self.damage = M_DATA[self.m_type][M_DAMAGE] 
         self.player = None
