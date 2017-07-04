@@ -29,10 +29,11 @@ o targeting mechanism for non-ballistic powerups
 - Use 'p' key to print current game state?
 - Fix monsters going through diagnal walls
    - Original doesn't seem to have diagnal walls, always a right angle
+   - Maybe just skip levels generated with diagonal walls?
 - Fix monsters going into walls (only at edges)????
 - Animate each monster/player move
    - Maybe add a half tile frame?
-
+- Implement "Bomba" (ballistic monsters) firing.
 
 Ghost 100
 Troll 100
