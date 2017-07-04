@@ -250,6 +250,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 n_monster_turn = 0
                 player.my_turn = True
             else:
+                # TODO: process monsters, starting with the one closest to the player, so that there is less chance of a backup/blockage
                 m = monster_list[n_monster_turn]
                 if m.hit_pts <= 0 and m.resurection_pts == 0:
                     del monster_list[n_monster_turn]

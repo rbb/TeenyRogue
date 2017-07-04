@@ -8,8 +8,55 @@ from decal import Decal
 
 # Static sprites - ie ones that (for the most part) don't move around.
 
-#TODO: Refactor E_* values and E_DATA into Equipment class
+
+# Equipment (powerup) database
+#             Image Name          Damage, ballistic, global, targeting, exp pts
+E_DATA = [[None,                     0,      False,   False,  False,      0 ], # Note: first entry is bogus so logic in Player.use_equipment() works
+          ["images/dagger32.png",    1,      True,    False,  False,      0 ],
+          ["images/firebomb32.png",  2,      True,    False,  False,      0 ],
+          ["images/firestorm32.png", 1,      False,   True,   False,      0 ],
+          ["images/freeze32.png",    1,      False,   True,   False,      0 ],
+          ["images/lightning32.png", 1,      False,   False,  True,       0 ],
+          ["images/treasure32.png",  0,      False,   False,  False,     500] ]
+E_NONE = 0     # Note: bogus entry for "No equpment"
+E_DAGGER = 1
+E_FIRE_BOMB = 2
+E_FIRESTORM = 3
+#E_FREEZE_BOMB = 4
+E_FREEZE_STORM = 4
+E_LIGHTNING = 5
+# TODO other equipment
+E_MAX = 6
+
+E_IMAGE = 0
+E_DAMAGE = 1
+E_BALLISTIC = 2
+E_GLOBAL = 3
+E_TARGETING = 4
+E_EXP_PTS = 5
+
 class Equipment:
+    def __init__(self):
+        self.db = E_DATA
+        self.e_type = None
+        self.fname = None
+
+    def rand_select(self):
+        self.e_type = int(round( np.random.uniform(0, len(self.db)-1) ))
+        return self.e_type
+
+    def image_fname(self):
+        self.fname = self.db[self.e_type][E_IMAGE]
+        return self.fname
+
+    def get_damage(self):
+        return self.db[self.e_type][E_DAMAGE]
+
+    def get_exp_pts(self):
+        return self.db[self.e_type][E_EXP_PTS]
+        
+
+class EquipmentList:
     """A player's equipment list"""
     #def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
     def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
@@ -135,15 +182,15 @@ class Status(pygame.sprite.Sprite):
             n = self.player.equip_loc
             x = n * (width) +SCREEN_W/2 +width/2
             pygame.draw.rect(self.image, GRAY_37, (x+6,y+8, width, width) )
-        for n in range(self.player.equipment.length()):
-            # Draw the equipment storage boxes/locations
+        for n in range(self.player.equipmentl.length()):
+            # Draw the equipmentl storage boxes/locations
             x = n * (width) +SCREEN_W/2 +width/2
             pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
-        for n in range( self.player.equipment.length() ):
-            # Draw the equipment
-            if self.player.equipment.get(n):
+        for n in range( self.player.equipmentl.length() ):
+            # Draw the equipmentl
+            if self.player.equipmentl.get(n):
                 x = n * (width) +SCREEN_W/2 +width/2
-                self.image.blit(self.equipment_images[self.player.equipment.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+                self.image.blit(self.equipment_images[self.player.equipmentl.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
         #self.level = self.player.level -1
         #if self.level > self.max_level -1:

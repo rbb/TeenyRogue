@@ -38,8 +38,6 @@ class BaseSprite(pygame.sprite.Sprite):
         self.ballistic_sprites = None
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
-        equipment = Equipment()
-        self.equipment = equipment
         self.exp_pts = 0
  
     def set_map_pos(self, start_pos):
@@ -113,27 +111,21 @@ class BaseSprite(pygame.sprite.Sprite):
 class Powerup(BaseSprite):
     """ Powerups that the player can grab"""
 
-    def __init__(self, start_pos, e_type=None):
+    def __init__(self, start_pos, equip=None):
         # Call the parent's constructor
  
-        #print (str(PU_IMAGES) )
-        if (e_type == None):
-            self.e_type = 0
-            while self.e_type == 0:
-                self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
+        if (equip == None):
+            self.equip = Equipment()
+            self.equip.rand_select()
         else:
-            self.e_type = e_type
-        #fname = PU_IMAGES[ self.e_type ] 
-        fname = E_DATA[self.e_type][E_IMAGE]
-        if None == fname:
+            self.equip = equip
+        if None == self.equip.image_fname():
             print "Powerup.__init__(): Error - fname == None"
-            print "Powerup.__init__(): e_type = " +str(e_type)
-            print "Powerup.__init__(): self.e_type = " +str(self.e_type)
-            #print "Powerup.__init__(): fname = " +str(fname)
+            print "Powerup.__init__(): e_type = " +str(self.equip.e_type)
             sys.exit(0)
-        image = pygame.image.load( fname )
+        image = pygame.image.load( self.equip.image_fname() )
         super(Powerup, self).__init__(start_pos, image)
-        self.exp_pts = E_DATA[self.e_type][E_EXP_PTS]
+        self.exp_pts = self.equip.get_exp_pts()
 
     def changepos(self, key):
         self.change_x = 0
@@ -155,11 +147,10 @@ class Ballistic(BaseSprite):
     """Things that the player can shoot"""
 
     def __init__(self, start_graph_pos, e_type, walls, monsters, change_x, change_y, parent):
-        if (e_type == None):
-            self.e_type = int(round( np.random.uniform(0, len(E_DATA)-1) ))
-        else:
-            self.e_type = e_type
-        fname = E_DATA[self.e_type][E_IMAGE]
+        self.equip = Equipment()
+        self.equip.rand_select()
+        self.e_type = self.equip.e_type
+        fname = self.equip.image_fname()
         if None == fname:
             print "Ballistic.__init__(): Error - fname == None"
             sys.exit(0)
@@ -168,7 +159,7 @@ class Ballistic(BaseSprite):
         super(Ballistic, self).__init__(start_pos, image)
         #self.rect.y = start_pos[1]   # Note: rect is graphic position, not map position
         #self.rect.x = start_pos[0]   # Note: rect is graphic position, not map position
-        self.damage = E_DATA[self.e_type][E_DAMAGE]
+        self.damage = self.equip.get_damage()
         self.walls = walls
         self.monsters = monsters
         self.change_x = change_x
