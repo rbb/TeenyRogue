@@ -5,6 +5,8 @@ from pygame.locals import *
 import numpy as np
 import GameMap
 from mysprite import *
+from staticsprite import *
+from player import *
 from utils import *
 
 

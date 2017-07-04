@@ -1,0 +1,203 @@
+import pygame, sys
+from pygame.locals import *
+import numpy as np
+from utils import *
+import os
+import time
+from decal import Decal
+
+# Static sprites - ie ones that (for the most part) don't move around.
+
+#TODO: Refactor E_* values and E_DATA into Equipment class
+class Equipment:
+    """A player's equipment list"""
+    #def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
+    def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
+        self.e_list = starting_equip
+
+    def add(self, e):
+        """Add an equipment item (e) to the equipment list, in the next empty slot.
+
+           Return False if no slots exist or if equipment type being added is invalid."""
+        #Verify e is a valid eqipment type
+        if not self.valid(e):
+            return False
+
+        for n in range( self.length() ):
+            if self.e_list[n] == E_NONE:
+                self.e_list[n] = e
+                return True
+
+        # If we get here, then we didn't find an empty slot
+        return False
+
+    def valid(self, e):
+        if E_NONE == e or E_MAX <= e:
+            return False
+        else:
+            return True
+
+    def add_slots(self, dN=2):
+        for n in range(dN):
+            self.e_list.append( E_NONE )
+
+    def get(self, n):
+        return self.e_list[n]
+
+    def rm(self, n):
+        if E_NONE != self.e_list[n]:
+            self.e_list[n] = E_NONE
+            return True
+        else:
+            return False
+
+    def get_list(self):
+        return self.e_list
+
+    def length(self):
+        return len(self.e_list)
+
+class Status(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height, player, level, FONT): #, font):
+        """ Constructor for the wall that the player and monsters can run into. """
+        super(Status, self).__init__()
+        self.x = x
+        self.y = y
+        self.w = width
+        self.h = height
+        self.font = FONT
+ 
+        #self.heart = pygame.image.load('images/heart.png').convert_alpha()
+        self.heart = pygame.image.load('images/heart.png')
+        #self.heart.set_alpha(255)
+
+        #self.empty_heart = pygame.image.load('images/empty_heart.png').convert_alpha()
+        self.empty_heart = pygame.image.load('images/empty_heart.png')
+
+        self.equipment_images = []
+        #for fname in PU_IMAGES:
+        for n in range(len(E_DATA)):
+            fname = E_DATA[n][E_IMAGE]
+            if fname:
+                #self.equipment_images.append( pygame.image.load(fname).convert_alpha() )
+                self.equipment_images.append( pygame.image.load(fname) )
+            else:
+                self.equipment_images.append( None )
+
+
+        self.player = player
+
+        self.max_level = 4
+        self.level_images = []
+        for n in range(self.max_level):
+            fname = 'images/level_' +str(n+1) +'.png'
+            #self.level_images.append( pygame.image.load(fname).convert_alpha() )
+            self.level_images.append( pygame.image.load(fname) )
+        self.level=level
+        #self.new_level()
+        #self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        self.update()
+
+    def get_map_pos(self):
+        return (self.rect.x / SCALE, self.rect.y / SCALE)
+
+    #def new_level(self):
+    #    self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+ 
+    def update(self):
+        # Make a background
+        self.image = pygame.Surface([self.w, self.h])
+        self.image.fill(PURPLE)
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = self.y
+        self.rect.x = self.x
+
+        # Now draw Hearts for hit points on top of background
+        #width = self.heart.get_size()[0] + 5
+        width = 20
+        y = 0
+        for n in range(self.player.max_hit_pts):
+            x = n * (width) 
+
+            if n < self.player.hit_pts:
+                self.image.blit(self.heart, (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+            else:
+                self.image.blit(self.empty_heart, (x,y) ) # area=None, special_flags = 0)
+                #pygame.draw.circle(self.image, BLACK, (x,y), 5)
+
+        # Draw Equipment
+        width = 25
+        if self.player.equip_loc != None:
+            # Draw box around selected equipment
+            n = self.player.equip_loc
+            x = n * (width) +SCREEN_W/2 +width/2
+            pygame.draw.rect(self.image, GRAY_37, (x+6,y+8, width, width) )
+        for n in range(self.player.equipment.length()):
+            # Draw the equipment storage boxes/locations
+            x = n * (width) +SCREEN_W/2 +width/2
+            pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
+        for n in range( self.player.equipment.length() ):
+            # Draw the equipment
+            if self.player.equipment.get(n):
+                x = n * (width) +SCREEN_W/2 +width/2
+                self.image.blit(self.equipment_images[self.player.equipment.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        #self.level = self.player.level -1
+        #if self.level > self.max_level -1:
+        #    self.level = self.max_level -1
+        #self.image.blit(self.level_images[self.level], (5, STATUS_H/2 -5) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        plevel_label = self.font.render("P:" +str(self.player.level), 1, GREENISH)
+        self.image.blit(plevel_label, (20, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        level_label = self.font.render("L:" +str(self.level), 1, GREENISH)
+        self.image.blit(level_label, (SCREEN_W/3, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+        score_label = self.font.render(str(self.player.exp_pts), 1, GREENISH)
+        self.image.blit(score_label, (2*SCREEN_W/3, STATUS_H/2) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, x, y, scale, surf):
+        """ Constructor for the wall that the player and monsters can run into. """
+        super(Wall, self).__init__()
+ 
+        ## Make a blue wall, of the size specified in the parameters
+        #if name:
+        #    #if os.path.isfile(name):
+        #    #    #tile = pygame.image.load(name).convert_alpha()
+        #    #    #self.image = pygame.image.load(name).convert()
+        #    #    #self.image.blit(tile, (0,0) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+        #    #else:
+        #    #    self.image = pygame.Surface([SCALE, SCALE])
+        #    #    self.image.fill(name)
+        #else:
+        self.image = surf
+        #   self.image = pygame.Surface([SCALE, SCALE])
+        #   self.image.fill(GRAY_37)
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y*SCALE
+        self.rect.x = x*SCALE
+
+    def get_map_pos(self):
+        return (self.rect.x / SCALE, self.rect.y / SCALE)
+
+class Ladder(pygame.sprite.DirtySprite):
+    def __init__(self, start_pos):
+        super(Ladder, self).__init__()
+        self.image = pygame.image.load('images/ladder32.png')
+        self.dirty = 2
+        self.blendmode = 0
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
+        self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
+        self.pos = start_pos                 # None: this is MAP position
+ 
+    def get_map_pos(self):
+        return (self.rect.x / SCALE, self.rect.y / SCALE)
+
