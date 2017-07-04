@@ -2,10 +2,10 @@
 Tasks
 -------------------------
 * Fix moving into walls lets monsters move
-o targeting mechanism for non-ballistic powerups
-   - highlight selected monster
-   - inflict the damage
-- Highlight selected powerups (ie when in targeting or ballistic mode, show the powerup selected)
+* targeting mechanism for non-ballistic powerups
+   * highlight selected monster
+   * inflict the damage
+* Highlight selected powerups (ie when in targeting or ballistic mode, show the powerup selected)
 - Leveling up
    - Graphics
    - Level up bonuses
@@ -17,6 +17,7 @@ o targeting mechanism for non-ballistic powerups
 - Original or free artwork for sprites
 * blit hit points of monters on their sprites
 - Flash screen on hits
+- animate monster deaths (little explosion? Fade to black? Fade to alpha?)
 - 'E' When no monsters goes to ladder
 - Change sprites when they are stunned
 - show levelup bonus status (ie vampire, +damage on firestorm, etc)
@@ -36,14 +37,16 @@ o targeting mechanism for non-ballistic powerups
 - Implement "Bomba" (ballistic monsters) firing.
 - Prevent monsters from being on ladder
 
-Ghost 100
-Troll 100
-Skeleton 100
-Fast Thing 100
-Bomba 200
-knight 250
-rat 50
-ladder 50
+Monster     Exp Pts
+-------     -------
+Ghost          100
+Troll          100
+Skeleton       100
+Fast Thing     100
+Bomba          200
+knight         250
+rat             50
+ladder          50
 
 Level 2: <=1250
 Level 3: >3350,  <=3450
