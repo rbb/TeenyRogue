@@ -34,6 +34,7 @@ o targeting mechanism for non-ballistic powerups
 - Animate each monster/player move
    - Maybe add a half tile frame?
 - Implement "Bomba" (ballistic monsters) firing.
+- Prevent monsters from being on ladder
 
 Ghost 100
 Troll 100

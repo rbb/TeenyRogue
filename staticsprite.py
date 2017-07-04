@@ -59,7 +59,8 @@ class Equipment:
 class EquipmentList:
     """A player's equipment list"""
     #def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
-    def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
+    #def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
+    def __init__(self, starting_equip=[E_FIRESTORM, E_DAGGER, E_NONE, E_NONE]):   # DEBUG
         self.e_list = starting_equip
 
     def add(self, e):
@@ -92,6 +93,7 @@ class EquipmentList:
         return self.e_list[n]
 
     def rm(self, n):
+        print "EquipmentList.rm: n = " +str(n)
         if E_NONE != self.e_list[n]:
             self.e_list[n] = E_NONE
             return True

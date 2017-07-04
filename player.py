@@ -192,10 +192,17 @@ class Player(BaseSprite):
                     print "Targeting (up) selected monster " +str(self.n_target_monster)
 
             if pygame.K_RETURN == key:
-                self.mode = self.PM_MOVE
-                self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                self.n_target_monster = None
-                print "Got a request to deploy a targeted weapon, but alas, targeting is not implemented"
+                if self.n_target_monster != None:
+                    #self.monster_list[self.n_target_monster].targeted = False
+                    print "Disabling targeted monster " +str(self.n_target_monster)
+                    self.do_damage(self.monster_list[self.n_target_monster], 0) #no stun
+                    self.mode = self.PM_MOVE
+                    self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                    self.n_target_monster = None
+
+                    # Decrement the equipmentl
+                    self.equipmentl.rm(self.equip_loc)
+                    self.equip_loc = None
                      
         else:
             print "Unknown Player Mode"
@@ -277,23 +284,7 @@ class Player(BaseSprite):
                         self.rect.top = block.rect.bottom
 
                     # Do the damage
-                    #print "Player.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
-                    #block.hit_pts -= self.damage
-                    block.wound( self.damage, self.stun_rate )
-                    #block.stun_level += self.stun_rate
-                    print "Player.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
-                    if block.hit_pts <= 0:
-                        if block.not_dead_yet or block.resurection_pts == 0:
-                            self.add_exp_pts(block.exp_pts)
-                            print "Dead Monster worth " +str(block.exp_pts) +" points"
-                            block.not_dead_yet = False
-                            #print str(type(block))
-                            #block.prn()
-                            print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
-                            #self.prn()
-                            if block.resurection_pts == 0:
-                                self.monsters.remove(block)
-                                block.kill()
+                    self.do_damage(block, self.stun_rate)
 
             # Check and see if we hit the ladder
             block_hit_list = pygame.sprite.spritecollide(self, self.ladders, False)
@@ -340,3 +331,26 @@ class Player(BaseSprite):
                     print "add_exp_pts: exp_pts = " +str(self.exp_pts) +" > level_limits[" +str(n) +"] = " +str(self.level_limits[n])
                 self.level = (N-n) +1
                 break
+
+    def do_damage(self, monster, stun_rate):
+        monster.wound( self.damage, stun_rate )
+        monster.targeted = False
+        if monster.hit_pts <= 0:
+            if monster.not_dead_yet or monster.resurection_pts == 0:
+                # Note: not_dead_yet, used to prevent resurected monsters from providing additional exp pts
+                self.add_exp_pts(monster.exp_pts)
+                print "Dead Monster worth " +str(monster.exp_pts) +" points"
+                monster.not_dead_yet = False
+                #print str(type(monster))
+                #monster.prn()
+                print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
+                #self.prn()
+                if monster.resurection_pts == 0:
+                    print "Dead targeted Monster, cleaning up."
+                    self.monsters.remove(monster)
+                    for n in range(len(self.monster_list)):
+                        if self.monster_list[n] == monster:
+                            del self.monster_list[n]
+                            break
+                    monster.kill()
+
