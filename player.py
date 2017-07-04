@@ -68,8 +68,13 @@ class Player(BaseSprite):
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
                 if E_FIRESTORM == e or E_FREEZE_STORM == e or E_LIGHTNING == e:
-                    self.mode = self.PM_TARGETING
-                    self.weapon = e
+                    if len(self.monster_list) > 0:
+                        self.mode = self.PM_TARGETING
+                        self.weapon = e
+                        self.n_target_monster = 0
+                        self.monster_list[0].targeted = True
+                        print "n_target_monster = " +str(self.n_target_monster)
+                        print "Entering target mode"
         elif self.PM_MOVE == self.mode:
             self.change_x = 0
             self.change_y = 0
@@ -104,7 +109,7 @@ class Player(BaseSprite):
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 self.change_x = 0
                 self.change_y = 0
-                print "Returning to MOVE mode"
+                print "Returning to MOVE mode, from Ballistic mode"
 
             elif self.key_is_move(key):
                 ballistic_delta = 10
@@ -145,14 +150,19 @@ class Player(BaseSprite):
             #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
             print "Player Target Mode"
             if pygame.K_ESCAPE == key:
+                print "n_targeted_monster = " +str(self.n_target_monster)
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                self.n_target_monster = None
                 self.equip_loc = None
-                print "Returning to MOVE mode"
+                if self.n_target_monster != None:
+                    self.monster_list[self.n_target_monster].targeted = False
+                    print "Disabling targeted monster " +str(self.n_target_monster)
+                self.n_target_monster = None
+                print "Returning to MOVE mode, from target mode"
 
             if pygame.K_j == key or pygame.K_k == key or pygame.K_DOWN == key or pygame.K_UP == key :
                 N = len(self.monster_list)
+                print "Targeting N monsters = " +str(N)
                 if N == 0:
                     self.mode = self.PM_MOVE
                     self.weapon = None     #TODO: Do we need to define a mele weapon type??
@@ -162,19 +172,23 @@ class Player(BaseSprite):
                     if self.n_target_monster == None:
                         self.n_target_monster = 0
                     else:
+                        self.monster_list[self.n_target_monster].targeted = False
                         if self.n_target_monster == N-1:
-                            self.n_target_monster == 0
+                            self.n_target_monster = 0
                         else:
                             self.n_target_monster += 1
+                    self.monster_list[self.n_target_monster].targeted = True
                     print "Targeting (down) selected monster " +str(self.n_target_monster)
                 if pygame.K_i == key or pygame.K_UP == key:
                     if self.n_target_monster == None:
                         self.n_target_monster = N-1
                     else:
+                        self.monster_list[self.n_target_monster].targeted = False
                         if self.n_target_monster == N-1:
-                            self.n_target_monster == N-1
+                            self.n_target_monster = N-1
                         else:
                             self.n_target_monster -= 1 
+                    self.monster_list[self.n_target_monster].targeted = True
                     print "Targeting (up) selected monster " +str(self.n_target_monster)
 
             if pygame.K_RETURN == key:

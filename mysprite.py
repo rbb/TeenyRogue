@@ -21,12 +21,12 @@ class BaseSprite(pygame.sprite.Sprite):
         self.set_map_pos(start_pos)
  
         # Set speed vector
-        self.change_x = 0           # the commanded change this turn
-        self.change_y = 0           # the commanded change this turn
+        self.change_x = 0           # the commanded change this turn (in pixels)
+        self.change_y = 0           # the commanded change this turn (in pixels)
         #self.dx = self.image.get_size()[0]
         #self.dy = self.image.get_size()[1]
-        self.dx = SCALE             # This is the speed that the sprite will move normally
-        self.dy = SCALE             # This is the speed that the sprite will move normally
+        self.dx = SCALE             # This is the speed that the sprite will move normally (in pixels)
+        self.dy = SCALE             # This is the speed that the sprite will move normally (in pixels)
         self.walls = None
         self.monsters = None
         self.ladders = None         # Note: using ladderS because it actually a sprite group, eventhough it only contains one sprite
@@ -294,7 +294,7 @@ class Monster(BaseSprite):
         self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
         self.damage = M_DATA[self.m_type][M_DAMAGE] 
         self.player = None
-        self.players = None
+        #self.players = None
         self.monsters = None
         self.level_map = level_map
         self.stun_level = 0
@@ -302,6 +302,7 @@ class Monster(BaseSprite):
         self.stun = Stun(self.image)
         self.hit_decal = Decal(RED, 1)
         self.hit_decal.setv(self.hit_pts)
+        self.targeted = False
         if VERBOSE:
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
@@ -311,8 +312,8 @@ class Monster(BaseSprite):
     #    return getattr(self.BaseSprite, name)
     def changepos(self):
         """ Update the Monster position, etc """
-        print "Monster.changepos: type = " +M_DATA[self.m_type][M_IMAGE_FNAME]
-        if not MONSTER_MOVE:
+        print "Monster.changepos: type() = " +M_DATA[self.m_type][M_IMAGE_FNAME]
+        if not MONSTER_MOVE: # Debug - set False in utils.py, to disable monster movement
             return
         if self.player.hit_pts <= 0:
             return
@@ -525,6 +526,11 @@ class Monster(BaseSprite):
                 pygame.draw.line(self.image, YELLOW, (0,0), (32,32), 5) 
                 pygame.draw.line(self.image, YELLOW, (0,32), (32,0), 5) 
         self.image.blit(self.hit_decal.image, (SCALE-self.hit_decal.w,SCALE-self.hit_decal.h) )  # Lower Right
+        if self.targeted:
+            pygame.draw.line(self.image, WHITE, (0,0),  (0,32),  3) 
+            pygame.draw.line(self.image, WHITE, (0,32), (32,32), 3) 
+            pygame.draw.line(self.image, WHITE, (32,32),(32,0),  3) 
+            pygame.draw.line(self.image, WHITE, (32,0), (0,0),   3) 
 
 
  

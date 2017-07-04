@@ -3,7 +3,7 @@ import numpy as np
 # -- Global constants
 VERBOSE = 1
 PNG_BG = False
-MONSTER_MOVE = True
+MONSTER_MOVE = True     # Debug - set False to disable monster movement
 TEST_MAP = False
 
 if TEST_MAP:
