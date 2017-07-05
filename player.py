@@ -75,6 +75,8 @@ class Player(BaseSprite):
                         self.monster_list[0].targeted = True
                         print "n_target_monster = " +str(self.n_target_monster)
                         print "Entering target mode"
+            else:
+                self.equip_loc = None
         elif self.PM_MOVE == self.mode:
             self.change_x = 0
             self.change_y = 0
@@ -308,10 +310,12 @@ class Player(BaseSprite):
             pass
 
         elif self.PM_BALLISTIC_FIRE == self.mode:
-            if not self.my_ballistic.alive():
-                self.add_exp_pts(self.my_ballistic.exp_pts)
-                print "Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points"
-                print "Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points"
+            if not self.my_ballistic.alive(): # Poor nomenclature, it means the sprite is not on the screen
+                if self.my_ballistic.exp_pts > 0:
+                    # Monster exp pts were transferred to the ballistic. Here we transfer to player
+                    self.add_exp_pts(self.my_ballistic.exp_pts)
+                    print "Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points"
+                    print "Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points"
                 self.my_ballistic = None
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??

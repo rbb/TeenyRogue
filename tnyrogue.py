@@ -244,8 +244,11 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
     N = len(all_sprite_group)
     player.my_turn = True
     n_monster_turn = 0 
+    monster_wait_n = 0     # Number of loops before processing next monster
+    MONSTER_WAIT_N = 7     # Number of loops before processing next monster
+    
     while not done_level:
-        if not player.my_turn:
+        if not player.my_turn and not monster_wait_n:
             if n_monster_turn >= len(monster_list):
                 n_monster_turn = 0
                 player.my_turn = True
@@ -262,6 +265,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                     monster_list[n_monster_turn].my_turn = False
                 n_monster_turn += 1
             print "n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list))
+            monster_wait_n = MONSTER_WAIT_N
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
@@ -304,6 +308,9 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         if not player.alive():   # poor nomenclature: this means the sprite disapeared from the screen
             print "Level " +str(level) +" Complete!"
             done_level = True  # TODO: move on to next level instead
+
+        if monster_wait_n > 0 and not player.my_turn:
+            monster_wait_n -= 1;
 
     player.heal(1)
     return done_level, player #End do_level()
