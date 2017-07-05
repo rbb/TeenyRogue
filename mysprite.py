@@ -120,6 +120,7 @@ class Powerup(BaseSprite):
             self.equip.rand_select()
         else:
             self.equip = equip
+
         if None == self.equip.image_fname():
             print "Powerup.__init__(): Error - fname == None"
             print "Powerup.__init__(): e_type = " +str(self.equip.e_type)
@@ -186,16 +187,18 @@ class Ballistic(BaseSprite):
         self.rect.y += self.change_y
         block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
         for block in block_hit_list:
-            print "Ballistic.update() Hit Monster: pre hit_pts = " +str(block.hit_pts)
-            block.hit_pts -= self.damage
-            print "Ballistic.update() Hit Monster: new hit_pts = " +str(block.hit_pts)
+            print "Ballistic.update() Hit Monster"
+            block.wound(self.damage, 0) # No stun
             if block.hit_pts <= 0:
-                print "Dead Monster. Do SOMETHING!!!!"
-                self.exp_pts = block.exp_pts
-                self.monsters.remove(block)
-                block.kill()
-                self.parent.update()
-                #TODO: block = None, so that memory gets cleared??? Maybe we just wait until the next level of monsters is created???
+                if block.not_dead_yet or block.resurection_pts == 0:
+                    print "Monster dead from Ballistic, cleaning it up."
+                    self.exp_pts = block.exp_pts    # Transfer the pts to the ballistic sprite, the player will grab them later
+
+                    if block.resurection_pts == 0:
+                        self.monsters.remove(block)
+                        block.kill()
+                        self.parent.update()
+                        #TODO: block = None, so that memory gets cleared??? Maybe we just wait until the next level of monsters is created???
             #TODO: Create a hit flash/explosion/something
             #self.mark_for_del()
             self.kill()

@@ -42,7 +42,7 @@ class Equipment:
         self.fname = None
 
     def rand_select(self):
-        self.e_type = int(round( np.random.uniform(0, len(self.db)-1) ))
+        self.e_type = int(round( np.random.uniform(1, len(self.db)-1) ))
         return self.e_type
 
     def image_fname(self):
@@ -102,6 +102,13 @@ class EquipmentList:
 
     def get_list(self):
         return self.e_list
+
+    def n_items(self):
+        n = 0
+        for e in self.e_list:
+            if e:
+                n += 1
+        return n
 
     def length(self):
         return len(self.e_list)
