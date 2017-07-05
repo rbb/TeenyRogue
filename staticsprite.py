@@ -15,6 +15,7 @@ E_DATA = [[None,                     0,      False,   False,  False,      0 ], #
           ["images/dagger32.png",    1,      True,    False,  False,      0 ],
           ["images/firebomb32.png",  2,      True,    False,  False,      0 ],
           ["images/firestorm32.png", 1,      False,   True,   False,      0 ],
+          ["images/freezebomb32.png",1,      True,    False,  False,      0 ],
           ["images/freeze32.png",    1,      False,   True,   False,      0 ],
           ["images/lightning32.png", 1,      False,   False,  True,       0 ],
           ["images/treasure32.png",  0,      False,   False,  False,     500] ]
@@ -22,9 +23,9 @@ E_NONE = 0     # Note: bogus entry for "No equpment"
 E_DAGGER = 1
 E_FIRE_BOMB = 2
 E_FIRESTORM = 3
-#E_FREEZE_BOMB = 4
-E_FREEZE_STORM = 4
-E_LIGHTNING = 5
+E_FREEZE_BOMB = 4
+E_FREEZE_STORM = 5
+E_LIGHTNING = 6
 # TODO other equipment
 E_MAX = 6
 
@@ -54,6 +55,15 @@ class Equipment:
 
     def get_exp_pts(self):
         return self.db[self.e_type][E_EXP_PTS]
+
+    def targeting(self):
+        return self.db[self.e_type][E_TARGETING]
+
+    def global_area(self):
+        return self.db[self.e_type][E_GLOBAL]
+
+    def ballistic(self):
+        return self.db[self.e_type][E_BALLISTIC]
         
 
 class EquipmentList:
@@ -62,6 +72,8 @@ class EquipmentList:
     #def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
     def __init__(self, starting_equip=[E_FIRESTORM, E_DAGGER, E_NONE, E_NONE]):   # DEBUG
         self.e_list = starting_equip
+        self.db = E_DATA
+        self.loc = None       # ie a slot number in e_list (0-3)
 
     def add(self, e):
         """Add an equipment item (e) to the equipment list, in the next empty slot.
@@ -89,16 +101,24 @@ class EquipmentList:
         for n in range(dN):
             self.e_list.append( E_NONE )
 
-    def get(self, n):
+    def get_e_type(self, n=None):
+        if n == None:
+            n = self.loc
         return self.e_list[n]
 
-    def rm(self, n):
-        print "EquipmentList.rm: n = " +str(n)
-        if E_NONE != self.e_list[n]:
-            self.e_list[n] = E_NONE
+    def rm(self, n=None):
+        if n == None:
+            nrm = self.loc
+        else:
+            nrm = n
+        print "EquipmentList.rm: n = " +str(nrm)
+        if E_NONE != self.e_list[nrm]:
+            self.e_list[nrm] = E_NONE
             return True
         else:
             return False
+        if n == None:
+            self.loc = None
 
     def get_list(self):
         return self.e_list
@@ -112,6 +132,37 @@ class EquipmentList:
 
     def length(self):
         return len(self.e_list)
+
+    #def get_exp_pts(self):
+    #    return self.db[self.e_type][E_EXP_PTS]
+
+    def targeting(self, n=None):
+        if n == None:
+            n = self.loc
+        if n > self.length():
+            return False
+        return self.db[self.e_list[n]][E_TARGETING]
+
+    def global_area(self, n=None):
+        if n == None:
+            n = self.loc
+        if n > self.length():
+            return False
+        return self.db[self.e_list[n]][E_GLOBAL]
+
+    def ballistic(self, n=None):
+        if n == None:
+            n = self.loc
+        if n > self.length():
+            return False
+        return self.db[self.e_list[n]][E_BALLISTIC]
+
+    def damage(self, n=None):
+        if n == None:
+            n = self.loc
+        if n > self.length():
+            return False
+        return self.db[self.e_list[n]][E_DAMAGE]
 
 class Status(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, player, level, FONT): #, font):
@@ -186,9 +237,9 @@ class Status(pygame.sprite.Sprite):
 
         # Draw Equipment
         width = 25
-        if self.player.equip_loc != None:
+        if self.player.equipmentl.loc != None:
             # Draw box around selected equipment
-            n = self.player.equip_loc
+            n = self.player.equipmentl.loc
             x = n * (width) +SCREEN_W/2 +width/2
             pygame.draw.rect(self.image, GRAY_37, (x+6,y+8, width, width) )
         for n in range(self.player.equipmentl.length()):
@@ -197,9 +248,9 @@ class Status(pygame.sprite.Sprite):
             pygame.draw.rect(self.image, PURPLE_DARK, (x+4,y+6, width-2, width-2) )
         for n in range( self.player.equipmentl.length() ):
             # Draw the equipmentl
-            if self.player.equipmentl.get(n):
+            if self.player.equipmentl.get_e_type(n):
                 x = n * (width) +SCREEN_W/2 +width/2
-                self.image.blit(self.equipment_images[self.player.equipmentl.get(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
+                self.image.blit(self.equipment_images[self.player.equipmentl.get_e_type(n)], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
 
         #self.level = self.player.level -1
         #if self.level > self.max_level -1:

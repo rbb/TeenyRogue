@@ -264,7 +264,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                     monster_list[n_monster_turn].changepos()
                     monster_list[n_monster_turn].my_turn = False
                 n_monster_turn += 1
-            print "n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list))
+            #print "n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list))
             monster_wait_n = MONSTER_WAIT_N
 
         for event in pygame.event.get():
