@@ -21,8 +21,7 @@ class Player(BaseSprite):
         self.max_hit_pts = 3
         self.hit_pts = 2
         self.damage = 1    # ability to do damage
-        equipmentl = EquipmentList()
-        self.equipmentl = equipmentl
+        self.equipmentl = EquipmentList()
         self.level = 1
         self.powerups = None
 
@@ -30,10 +29,10 @@ class Player(BaseSprite):
         self.PM_BALLISTIC_SELECT = 1
         self.PM_BALLISTIC_FIRE = 2
         self.PM_TARGETING = 3
+        self.PM_GLOBAL = 4
         self.mode = self.PM_MOVE
 
         self.ballistic = None
-        self.equip_loc = None
 
         # sprite groups
         self.monsters = None
@@ -52,22 +51,24 @@ class Player(BaseSprite):
 
     # Player changepos()
     def changepos(self, key):
+        #---------------------------------------------------
         if self.key_is_equip(key):
+        #---------------------------------------------------
             #self.use_equipment(key)
             if not self.key_is_equip(key): # Note this check is redundant if key_is_equip() is ALWAYS called first
                 return
-            self.equip_loc = key - pygame.K_1
+            self.equipmentl.loc = key - pygame.K_1
             if VERBOSE:
-                print( "Player.use_equipment(" +str(key) +"): equip_loc = " +str(self.equip_loc) )
+                print( "Player.use_equipment(" +str(key) +"): equipmentl.loc = " +str(self.equipmentl.loc) )
                 #print( "Player.use_equipment(): equipmentl = " +str(self.equipmentl) )
-            if self.equipmentl.get(self.equip_loc):
+            e = self.equipmentl.get_e_type()
+            if e:
                 # If we got here, then the eqipment location is something other than none
-                e = self.equipmentl.get(self.equip_loc)
-                print( "Player.use_equipment(" +str(key) +"): equipmentl["+str(self.equip_loc) +"] = " +str(e) )
-                if E_DAGGER == e or E_FIRE_BOMB == e:
+                print( "Player.use_equipment(" +str(key) +"): equipmentl["+str(self.equipmentl.loc) +"] = " +str(e) )
+                if self.equipmentl.ballistic():
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
-                if E_FIRESTORM == e or E_FREEZE_STORM == e or E_LIGHTNING == e:
+                elif self.equipmentl.targeting():
                     if len(self.monster_list) > 0:
                         self.mode = self.PM_TARGETING
                         self.weapon = e
@@ -75,9 +76,35 @@ class Player(BaseSprite):
                         self.monster_list[0].targeted = True
                         print "n_target_monster = " +str(self.n_target_monster)
                         print "Entering target mode"
+                elif self.equipmentl.global_area():
+                    self.mode = self.PM_GLOBAL
+                    self.weapon = e
+                    print "Entering Global Area mode"
             else:
-                self.equip_loc = None
+                self.equipmentl.loc = None
+        #---------------------------------------------------
+        if pygame.K_h == key:
+        #---------------------------------------------------
+            print "TODO: Help screen"
+            print ""
+            print "h       Print this help screen"
+            print "arrows  Move, change target"
+            print "1-4     Select equipment"
+            print "return  Activate equipment"
+            print "x       Drop equipment"
+            print "j,k,l,i Move"
+            print "k,i     Change target"
+            print "e       Exit level (only if no monsters)"
+            print "q       Quit"
+
+        #---------------------------------------------------
+        if pygame.K_o == key:
+        #---------------------------------------------------
+            print "TODO: options screen"
+
+        #---------------------------------------------------
         elif self.PM_MOVE == self.mode:
+        #---------------------------------------------------
             self.change_x = 0
             self.change_y = 0
             if key == pygame.K_LEFT or (key == pygame.K_j):
@@ -105,7 +132,9 @@ class Player(BaseSprite):
                     print ("   ladder =:" +str(l.rect.x) +',' + str(l.rect.y))
                     print ("   change =:" +str(self.change_x) +',' + str(self.change_y))
                     #self.my_turn = False
+        #---------------------------------------------------
         elif self.PM_BALLISTIC_SELECT == self.mode:
+        #---------------------------------------------------
             if pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
@@ -136,26 +165,29 @@ class Player(BaseSprite):
                 self.ballistic_sprites.add(self.my_ballistic)
      
                 # Decrement the equipmentl
-                self.equipmentl.rm(self.equip_loc)
-                self.equip_loc = None
+                self.equipmentl.rm()
 
                 # Cleanup
                 self.mode = self.PM_BALLISTIC_FIRE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 print "Transitioning to FIRE mode"
 
+        #---------------------------------------------------
         elif self.PM_BALLISTIC_FIRE == self.mode:
+        #---------------------------------------------------
             #self.ballistic.update()
             pass
 
+        #---------------------------------------------------
         elif self.PM_TARGETING == self.mode:
+        #---------------------------------------------------
             #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
             print "Player Target Mode"
             if pygame.K_ESCAPE == key:
                 print "n_targeted_monster = " +str(self.n_target_monster)
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                self.equip_loc = None
+                self.equipmentl.loc = None
                 if self.n_target_monster != None:
                     self.monster_list[self.n_target_monster].targeted = False
                     print "Disabling targeted monster " +str(self.n_target_monster)
@@ -197,16 +229,36 @@ class Player(BaseSprite):
                 if self.n_target_monster != None:
                     #self.monster_list[self.n_target_monster].targeted = False
                     print "Disabling targeted monster " +str(self.n_target_monster)
-                    self.do_damage(self.monster_list[self.n_target_monster], 0) #no stun
+                    self.do_damage(self.monster_list[self.n_target_monster], 0, self.equipmentl.damage() ) #no stun
                     self.mode = self.PM_MOVE
                     self.weapon = None     #TODO: Do we need to define a mele weapon type??
                     self.n_target_monster = None
 
                     # Decrement the equipmentl
-                    self.equipmentl.rm(self.equip_loc)
-                    self.equip_loc = None
+                    self.equipmentl.rm()
                      
+        #---------------------------------------------------
+        elif self.PM_GLOBAL == self.mode:
+        #---------------------------------------------------
+            #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
+            print "Player Global Area Mode"
+            if pygame.K_ESCAPE == key:
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+                self.equipmentl.loc = None
+                print "Returning to MOVE mode, from target mode"
+
+            elif pygame.K_RETURN == key:
+                for n in range(len(self.monster_list)):
+                    self.do_damage(self.monster_list[n], 0, self.equipmentl.damage()) #no stun
+                self.mode = self.PM_MOVE
+                self.weapon = None     #TODO: Do we need to define a mele weapon type??
+
+                # Decrement the equipmentl
+                self.equipmentl.rm()
+        #---------------------------------------------------
         else:
+        #---------------------------------------------------
             print "Unknown Player Mode"
             sys.exit(0)
 
@@ -231,8 +283,8 @@ class Player(BaseSprite):
 
     def key_is_equip(self, key):
         if key >= pygame.K_1 and key <= pygame.K_9:
-            equip_loc = key - pygame.K_1
-            if equip_loc < self.equipmentl.length():
+            self.equipmentl.loc = key - pygame.K_1
+            if self.equipmentl.loc < self.equipmentl.length():
                 return True
             else:
                 return False
@@ -336,7 +388,9 @@ class Player(BaseSprite):
                 self.level = (N-n) +1
                 break
 
-    def do_damage(self, monster, stun_rate):
+    def do_damage(self, monster, stun_rate, damage=None):
+        if damage == None:
+            damage = self.damage
         monster.wound( self.damage, stun_rate )
         monster.targeted = False
         if monster.hit_pts <= 0:

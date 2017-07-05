@@ -24,6 +24,7 @@ Tasks
 - zombie monsters (ie skeletons)
    - should not continue to take damage, until they re-animate
    * Allow player to walk over zombie monsters (ie skeletons)
+   - When player is on top of a zombie, it should not resurect
 - Daggers should be 3, and show count in equipment status
 - Refactor, so that there is some sort of world state variable that can be passed around, 
   instead of putting a bunch of stuff in the 'player' variable
