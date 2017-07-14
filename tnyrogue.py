@@ -9,36 +9,46 @@ from staticsprite import *
 from player import *
 from utils import *
 
-
 if TEST_MAP:
     N_MONSTERS = 1
     N_POWERUPS = 0
-
-    gm = GameMap.game_map(MAP_W, MAP_H)
-    gm.m = np.array([ [ 1,1,1,1,1],
-                      [ 1,0,1,0,1],
-                      [ 1,0,1,0,1],
-                      [ 1,0,0,0,1],
-                      [ 1,1,1,1,1] ], int)
-    gm.ladder = (3,1)
-
 else:
     N_MONSTERS = 1
     N_POWERUPS = 1
 
-    print "MAP_W, MAP_H = " +str([MAP_W, MAP_H])
-    while True:
+#----------------------------------------------
+def init_map():
+#----------------------------------------------
+    if TEST_MAP:
         gm = GameMap.game_map(MAP_W, MAP_H)
-        #gm.newrand()
-        #gm.newrandblocks()
-        gm.newrandsnake()
-        gm.clearpath()
-        valid = gm.is_valid()
-        print "map is_valid() = " +str(valid)
-        if valid:
-            break
+        gm.m = np.array([ [ 1,1,1,1,1],
+                          [ 1,0,1,0,1],
+                          [ 1,0,1,0,1],
+                          [ 1,0,0,0,1],
+                          [ 1,1,1,1,1] ], int)
+        gm.ladder = (3,1)
 
+    else:
+        print "init_map: MAP_W, MAP_H = " +str([MAP_W, MAP_H])
+        n_map_attempts = 0
+        while True:
+            gm = GameMap.game_map(MAP_W, MAP_H)
+            #gm.newrand()
+            #gm.newrandblocks()
+            gm.newrandsnake()
+            gm.clearpath()
+            map_valid = gm.is_valid()
+            print "map is_valid() = " +str(map_valid)
+            n_map_attempts += 1
+            print "Number of map attempts: " +str(n_map_attempts)
+            if map_valid:
+                print "Saving number of map attempts: " +str(n_map_attempts) +" to file"
+                with open("map_attempts.txt", "a") as myfile:
+                    myfile.write( str(n_map_attempts) +"\n" )
+                break
+    return gm
 
+gm = init_map()
 # Setup the Window
 pygame.init()
 pygame.font.init()
@@ -341,17 +351,8 @@ while not done_game:
     else:
         player.exp_pts += 50
         level += 1
-        if not TEST_MAP:
-            while True:
-                gm = GameMap.game_map(MAP_W, MAP_H)
-                #gm.newrand()
-                #gm.newrandblocks()
-                gm.newrandsnake()
-                gm.clearpath()
-                valid = gm.is_valid()
-                print "map is_valid() = " +str(valid)
-                if valid:
-                    break
+        gm = init_map()
+
 
 print ""
 print "Player Exp Pts: " +str(player.exp_pts)

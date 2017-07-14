@@ -132,3 +132,36 @@ if np.all(gm.valid == valid):
 else:
     print "gm.valid state ERROR"
 
+
+
+
+
+print ("=========================================\n")
+N = 1000
+print "generating " +str(N) +" maps of size [10, 10] ..."
+list_attempts = []
+for n in range(N):
+    n_map_attempts = 0
+    while True:
+        gm = GameMap.game_map(10, 10)
+        #gm.newrand()
+        #gm.newrandblocks()
+        gm.newrandsnake()
+        gm.clearpath()
+        map_valid = gm.is_valid()
+        #print "map is_valid() = " +str(map_valid)
+        n_map_attempts += 1
+        if N < 101:
+            print "iter: " +str(n) +"    attempts: " +str(n_map_attempts)
+        if map_valid:
+            break
+    list_attempts.append(n_map_attempts)
+np_attempts = np.array(list_attempts)
+print "Map Generation attempts"
+print "Mean:    " +str( np.mean(np_attempts) )
+print "Std Dev: " +str( np.std(np_attempts) )
+print "Max:     " +str( np.max(np_attempts) )
+bins = [0,2,4,6,8,10,12,14,16,18,20]
+h = np.histogram(np_attempts, bins)
+print "Histogram bins " +str(bins)
+print "Histogram      " +str(h[0])

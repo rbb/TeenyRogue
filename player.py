@@ -42,6 +42,12 @@ class Player(BaseSprite):
 
         # This is REALLY dumb. monsters is a sprite group, which is NOT iterable.
         # So, we need something that is iterable, to select a monster when targeting.
+        # 
+        # From the pygame pages:
+        #   sprites() -> sprite_list
+        #   Return a list of all the Sprites this group contains. You can also 
+        #   get an iterator from the group, but you cannot iterator over a 
+        #   Group while modifying it.
         self.monster_list = None
 
         self.my_turn = True
