@@ -157,6 +157,7 @@ class game_map():
         return x,y
 
     def prn(self, matrix):
+        """ Print a matrix in ASCII, to stdout"""
         s = ""
         for y in range(self.Y):
             for x in range(self.X):
@@ -173,8 +174,10 @@ class game_map():
             s += "\n"
         print s
     def prn_m(self):
+        """ Print the map in ASCII, to stdout"""
         self.prn(self.m)
     def prn_valid(self):
+        """ Print the valid results in ASCII, to stdout"""
         self.prn(self.valid)
 
     def next_space(self, x, y):
@@ -226,7 +229,12 @@ class game_map():
             return False
 
         self.spread(start_x, start_y)
+
+        #TODO: check if there is a valid path to the ladder from every square
+
         if np.all(self.valid):
             return True
         return False
+
+        
 

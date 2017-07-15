@@ -24,7 +24,8 @@ Tasks
 - zombie monsters (ie skeletons)
    - should not continue to take damage, until they re-animate
    * Allow player to walk over zombie monsters (ie skeletons)
-   - When player is on top of a zombie, it should not resurect
+   - Allow other (living) monsters to walk over zombie monsters (ie skeletons)
+   - When player or another monster is on top of a zombie, it should not resurect
 - Daggers should be 3, and show count in equipment status
 - Refactor, so that there is some sort of world state variable that can be passed around, 
   instead of putting a bunch of stuff in the 'player' variable
@@ -37,6 +38,7 @@ Tasks
    - Maybe add a half tile frame?
 - Implement "Bomba" (ballistic monsters) firing.
 - Prevent monsters from being on ladder
+- Fix GameMap.is_valid() for a diagnal is the only exit from a tile
 
 Monster     Exp Pts
 -------     -------
