@@ -134,10 +134,51 @@ else:
 
 
 
+print ("=========================================\n")
+print "Checking diagnal path is only exit from a tile"
+
+gm = GameMap.game_map(5,5)
+gm.m = np.array([ [ 1,1,1,1,1],
+                  [ 1,1,0,1,1],
+                  [ 1,0,1,1,1],
+                  [ 1,0,0,0,1],
+                  [ 1,1,1,1,1] ])
+
+# The expected output
+valid =np.array([ [ 1,1,1,1,1],
+                  [ 1,1,0,1,1],
+                  [ 1,1,1,1,1],
+                  [ 1,1,1,1,1],
+                  [ 1,1,1,1,1] ], int)
+ret_valid = gm.is_valid()
+print "is_valid() returns: " +str(ret_valid)
+if np.all(False == ret_valid):
+    print "is_valid() correct return"
+else:
+    print "is_valid() ERROR"
+
+
+print "Expected gm.valid state"
+gm.prn(valid)
+print""
+print "Test map output"
+gm.prn_m()
+print""
+print "Actual gm.valid() state"
+gm.prn_valid()
+
+if np.all(gm.valid == valid):
+    print "gm.valid state correct"
+else:
+    print "gm.valid state ERROR"
+
+
+
+
 
 
 print ("=========================================\n")
-N = 1000
+N = 100
 print "generating " +str(N) +" maps of size [10, 10] ..."
 list_attempts = []
 for n in range(N):
@@ -151,8 +192,7 @@ for n in range(N):
         map_valid = gm.is_valid()
         #print "map is_valid() = " +str(map_valid)
         n_map_attempts += 1
-        if N < 101:
-            print "iter: " +str(n) +"    attempts: " +str(n_map_attempts)
+        #print "iter: " +str(n) +"    attempts: " +str(n_map_attempts)
         if map_valid:
             break
     list_attempts.append(n_map_attempts)
@@ -165,3 +205,5 @@ bins = [0,2,4,6,8,10,12,14,16,18,20]
 h = np.histogram(np_attempts, bins)
 print "Histogram bins " +str(bins)
 print "Histogram      " +str(h[0])
+print ("=========================================\n")
+
