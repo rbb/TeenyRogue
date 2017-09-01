@@ -64,7 +64,7 @@ class Equipment:
 
     def ballistic(self):
         return self.db[self.e_type][E_BALLISTIC]
-        
+
 
 class EquipmentList:
     """A player's equipment list"""
@@ -209,6 +209,11 @@ class Status(pygame.sprite.Sprite):
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
+    def prn(self):
+        """print some basic (debug) info"""
+        print "rect(x,y):" +str([self.rect.x, self.rect.y])
+        print "get_map_pos():" +str(self.get_map_pos())
+
     #def new_level(self):
     #    self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
  
@@ -289,6 +294,11 @@ class Wall(pygame.sprite.Sprite):
         self.rect.y = y*SCALE
         self.rect.x = x*SCALE
 
+    def prn(self):
+        """print some basic (debug) info about Wall sprites"""
+        print "rect(x,y):" +str([self.rect.x, self.rect.y])
+        print "get_map_pos():" +str(self.get_map_pos())
+
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
 
@@ -304,6 +314,11 @@ class Ladder(pygame.sprite.DirtySprite):
         self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
         self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
         self.pos = start_pos                 # None: this is MAP position
+
+    def prn(self):
+        """print some basic (debug) info about Ladder sprites"""
+        print "rect(x,y):" +str([self.rect.x, self.rect.y])
+        print "get_map_pos():" +str(self.get_map_pos())
  
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)

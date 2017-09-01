@@ -418,3 +418,31 @@ class Player(BaseSprite):
                             break
                     monster.kill()
 
+    def print_state(self):
+        print "Player: print_state()"
+
+        print "powerups:"
+        print "---------"
+        for p in self.powerups:
+            p.prn()
+        print ""
+
+        print "all_sprites:"
+        print "-------------"
+        for p in self.all_sprites:
+            print str([p.rect.x, p.rect.y]) +", " +str(p.get_map_pos())
+            #p.prn()
+        print ""
+
+        print "ballistic_sprites:"
+        print "------------------"
+        for p in self.ballistic_sprites:
+            p.prn()
+        print ""
+
+        if self.monsters:
+            print "monsters:"
+            print "-------------"
+            for p in self.monsters:
+                p.prn()
+            print ""
