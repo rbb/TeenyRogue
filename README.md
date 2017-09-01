@@ -16,7 +16,7 @@ Tasks
       - Maybe add a half tile frame?
    - Change sprites when they are stunned
 - Features
-   - Use 'p' key to print current game state?
+   o Use 'p' key to print current game state?
    - Implement "Bomba" (ballistic monsters) firing.
    * 'E' When no monsters goes to ladder
    - Daggers should be 3, and show count in equipment status
@@ -37,6 +37,7 @@ Tasks
    - Fix monsters going into walls (only at edges)????
    - Prevent monsters from being on ladder
    - Fix `GameMap.is_valid()` for a diagnal is the only exit from a tile
+   - Fix `GameMap.is_valid()` if monsters can't be reached without crossing ladder
 - Misc
    - Refactor, so that there is some sort of world state variable that can be passed around, 
      instead of putting a bunch of stuff in the 'player' variable
