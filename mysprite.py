@@ -38,7 +38,7 @@ class BaseSprite(pygame.sprite.Sprite):
         self.hit_pts = 1
         self.damage = 1    # ability to do damage
         self.exp_pts = 0
- 
+
     def set_map_pos(self, start_pos):
         self.rect.y = start_pos[1] * SCALE   # Note: rect is graphic position, not map position
         self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
@@ -63,14 +63,15 @@ class BaseSprite(pygame.sprite.Sprite):
  
     def prn(self):
         """print some basic (debug) info about BaseSprites"""
-        if VERBOSE:
-            print "change_x,y:" +str([self.change_x, self.change_y])
-            print "dx,y:      " +str([self.dx, self.dy])
-            print "hit_pts:   " +str(self.hit_pts)
-            print "exp_pts:   " +str(self.exp_pts)
-            print "damage:    " +str(self.damage)
-            #print "monsters:    " +str(self.monsters)
-            #print "walls:    " +str(self.walls)
+        #if VERBOSE:
+        print "change_x,y:" +str([self.change_x, self.change_y])
+        print "dx,y:      " +str([self.dx, self.dy])
+        print "hit_pts:   " +str(self.hit_pts)
+        print "exp_pts:   " +str(self.exp_pts)
+        print "damage:    " +str(self.damage)
+        #print "monsters:    " +str(self.monsters)
+        #print "walls:    " +str(self.walls)
+        print ""
 
     def move_collision (self, sprite_group):
         """BaseSprite Collision Detection"""
@@ -174,6 +175,8 @@ class Ballistic(BaseSprite):
             print "Ballistic.__init__(): fname = " +str(fname)
             print "Ballistic.__init__(): change_x = " +str(change_x)
             print "Ballistic.__init__(): change_y = " +str(change_y)
+
+    #TODO: def prn(): with extra Ballistic specific info
 
     def changepos(self, key):
         pass
@@ -312,6 +315,24 @@ class Monster(BaseSprite):
             print ("Monster.fname = " +str(fname) )
             print ("Monster.hit_pts = " +str(self.hit_pts) )
             print ("Monster.exp_pts = " +str(self.exp_pts) )
+
+    def prn(self):
+        """print some basic (debug) info about BaseSprites"""
+        super(Monster, self).prn()
+        print "hit_pts:" +str(self.hit_pts)
+        print "max_hit_pts:" +str(self.max_hit_pts)
+        print "moves:" +str(self.moves)
+        print "wall_stop:" +str(self.wall_stop)
+        print "ballistic:" +str(self.ballistic)
+        print "resurection_pts:" +str(self.resurection_pts)
+        print "not_dead_yet:" +str(self.not_dead_yet)
+        print "exp_pts:" +str(self.exp_pts)
+        print "damage:" +str(self.damage)
+        print "stun_level:" +str(self.stun_level)
+        print "recover_rate:" +str(self.recover_rate)
+        print "stun:" +str(self.stun)
+        print "targeted:" +str(self.targeted)
+        print ""
 
     #def __getattr__(self, name):
     #    return getattr(self.BaseSprite, name)

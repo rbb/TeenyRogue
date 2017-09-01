@@ -64,7 +64,9 @@ print ""
 print "screen.get_flags() = " +str(screen.get_flags())
 print ""
 
+#----------------------------------------------
 def do_level(level, player, gm, Nmonsters, Npowerups):
+#----------------------------------------------
     bg = pygame.Surface([SCREEN_W, SCREEN_H +STATUS_H])
     bg.fill(BLACK)
     if PNG_BG:
@@ -282,6 +284,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 done_level = pygame.QUIT
             elif event.type == pygame.KEYUP and event.key == pygame.K_q:
                 done_level = pygame.QUIT
+            elif event.type == pygame.KEYUP and event.key == pygame.K_p:
+                player.print_state()
             elif player.my_turn and event.type == pygame.KEYUP:
                 print "Player Turn"
                 player.changepos(event.key)   # TODO player.my_turn = False in changepos()
