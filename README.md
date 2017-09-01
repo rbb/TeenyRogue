@@ -6,39 +6,44 @@ Tasks
    * highlight selected monster
    * inflict the damage
 * Highlight selected powerups (ie when in targeting or ballistic mode, show the powerup selected)
-- Leveling up
-   - Graphics
-   - Level up bonuses
-- Improve hit points to level array accuracy
-- Improve monster AI 
-   - Ghosts should prefer going into walls
-   - Shooters shoud perfer to not line up with player, or maybe at 50% chance?
-- Torches on walls
-- Original or free artwork for sprites
-* blit hit points of monters on their sprites
-- Flash screen on hits
-- animate monster deaths (little explosion? Fade to black? Fade to alpha?)
-- 'E' When no monsters goes to ladder
-- Change sprites when they are stunned
-- show levelup bonus status (ie vampire, +damage on firestorm, etc)
-- zombie monsters (ie skeletons)
-   - should not continue to take damage, until they re-animate
-   * Allow player to walk over zombie monsters (ie skeletons)
-   - Allow other (living) monsters to walk over zombie monsters (ie skeletons)
-   - When player or another monster is on top of a zombie, it should not resurect
-- Daggers should be 3, and show count in equipment status
-- Refactor, so that there is some sort of world state variable that can be passed around, 
-  instead of putting a bunch of stuff in the 'player' variable
-- Use 'p' key to print current game state?
-- Fix monsters going through diagnal walls
-   - Original doesn't seem to have diagnal walls, always a right angle
-   - Maybe just skip levels generated with diagonal walls?
-- Fix monsters going into walls (only at edges)????
-- Animate each monster/player move
-   - Maybe add a half tile frame?
-- Implement "Bomba" (ballistic monsters) firing.
-- Prevent monsters from being on ladder
-- Fix GameMap.is_valid() for a diagnal is the only exit from a tile
+- Improve graphics
+   - Torches on walls
+   - Shadows of walls
+   - Original or free artwork for sprites
+   - Flash screen on hits
+   - animate monster deaths (little explosion? Fade to black? Fade to alpha?)
+   - Animate each monster/player move
+      - Maybe add a half tile frame?
+   - Change sprites when they are stunned
+- Features
+   - Use 'p' key to print current game state?
+   - Implement "Bomba" (ballistic monsters) firing.
+   * 'E' When no monsters goes to ladder
+   - Daggers should be 3, and show count in equipment status
+   * blit hit points of monters on their sprites
+   - Leveling up
+      - Graphics
+      - Level up bonuses
+         - show levelup bonus status (ie vampire, +damage on firestorm, etc)
+- Bugs
+   - Fix monsters going through diagnal walls
+      - Original doesn't seem to have diagnal walls, always a right angle
+      - Maybe just skip levels generated with diagonal walls?
+   - zombie monsters (ie skeletons)
+      - should not continue to take damage, until they re-animate
+      * Allow player to walk over zombie monsters (ie skeletons)
+      - Allow other (living) monsters to walk over zombie monsters (ie skeletons)
+      - When player or another monster is on top of a zombie, it should not resurect
+   - Fix monsters going into walls (only at edges)????
+   - Prevent monsters from being on ladder
+   - Fix `GameMap.is_valid()` for a diagnal is the only exit from a tile
+- Misc
+   - Refactor, so that there is some sort of world state variable that can be passed around, 
+     instead of putting a bunch of stuff in the 'player' variable
+   - Improve hit points to level array accuracy
+   - Improve monster AI 
+      - Ghosts should prefer going into walls
+      - Shooters shoud perfer to not line up with player, or maybe at 50% chance?
 
 Monster     Exp Pts
 -------     -------
