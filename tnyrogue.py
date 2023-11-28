@@ -29,7 +29,7 @@ def init_map():
         gm.ladder = (3,1)
 
     else:
-        print "init_map: MAP_W, MAP_H = " +str([MAP_W, MAP_H])
+        print("init_map: MAP_W, MAP_H = " +str([MAP_W, MAP_H]))
         n_map_attempts = 0
         while True:
             gm = GameMap.game_map(MAP_W, MAP_H)
@@ -38,11 +38,11 @@ def init_map():
             gm.newrandsnake()
             gm.clearpath()
             map_valid = gm.is_valid()
-            print "map is_valid() = " +str(map_valid)
+            print("map is_valid() = " +str(map_valid))
             n_map_attempts += 1
-            print "Number of map attempts: " +str(n_map_attempts)
+            print("Number of map attempts: " +str(n_map_attempts))
             if map_valid:
-                print "Saving number of map attempts: " +str(n_map_attempts) +" to file"
+                print("Saving number of map attempts: " +str(n_map_attempts) +" to file")
                 with open("map_attempts.txt", "a") as myfile:
                     myfile.write( str(n_map_attempts) +"\n" )
                 break
@@ -60,9 +60,9 @@ FONT = pygame.font.SysFont("Arial", 15)
 screen = pygame.display.set_mode([SCREEN_W, SCREEN_H +STATUS_H], pygame.HWSURFACE)
 pygame.display.set_caption('TnyRogue')
 
-print ""
-print "screen.get_flags() = " +str(screen.get_flags())
-print ""
+print("")
+print("screen.get_flags() = " +str(screen.get_flags()))
+print("")
 
 #----------------------------------------------
 def do_level(level, player, gm, Nmonsters, Npowerups):
@@ -78,8 +78,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         pygame.draw.rect(floor, GRAY_45, (0,0, SCALE/2, SCALE/2), 1) 
         pygame.draw.rect(floor, GRAY_45, (SCALE/2+1,SCALE/2+1, SCALE/2-1, SCALE/2-1), 1) 
     floor_rect = floor.get_rect()
-    for x in range(SCREEN_W/floor_rect.width):
-        for y in range(SCREEN_H/floor_rect.width):
+    for x in range(int(SCREEN_W/floor_rect.width)):
+        for y in range(int(SCREEN_H/floor_rect.width)):
             floor_rect.topleft = (x * floor_rect.width, y * floor_rect.height)
             bg.blit(floor, floor_rect)
 
@@ -130,8 +130,8 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 floor_group.add(wall)
                 #all_sprite_group.add(wall)
     if VERBOSE:
-        print "Info: Walls and Floors Done"
-        #print "gm.m:"
+        print("Info: Walls and Floors Done")
+        #print("gm.m:")
         #gm.prn_m()
 
     #------------------------------------
@@ -154,11 +154,11 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         powerup_group.add(p)
         all_sprite_group.add(p)
     if VERBOSE:
-        print "Info: Powerups Done."
-        print "powerups located at:"
+        print("Info: Powerups Done.")
+        print("powerups located at:")
         for p in powerup_group:
-            print p.get_map_pos()
-        print "- - - - - - - - - - - - - "
+            print(p.get_map_pos())
+        print("- - - - - - - - - - - - - ")
 
 
     #------------------------------------
@@ -178,19 +178,19 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
             #block_hit_powerup_group = []
             #if VERBOSE:
-            #    print "m located at: " +str( m.get_map_pos() )
-            #    print "block_hit_monster_group:"
-            #    print block_hit_monster_group
-            #    print "block_hit_powerup_group:"
-            #    print block_hit_powerup_group
-            #    print "------------------------------"
+            #    print("m located at: " +str( m.get_map_pos() ))
+            #    print("block_hit_monster_group:")
+            #    print(block_hit_monster_group)
+            #    print("block_hit_powerup_group:")
+            #    print(block_hit_powerup_group)
+            #    print("------------------------------")
 
         m.walls = wall_group
         monster_group.add(m)
         monster_list.append(m)
         #all_sprite_group.add(m)
     if VERBOSE:
-        print "Info: Monsters Done."
+        print("Info: Monsters Done.")
      
 
     #------------------------------------
@@ -211,7 +211,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
         block_hit_monster_group = pygame.sprite.spritecollide(player, monster_group, False)
         block_hit_powerup_group = pygame.sprite.spritecollide(player, powerup_group, False)
         if VERBOSE:
-            print "Info: Redo player"
+            print("Info: Redo player")
     all_sprite_group.add(player)
     all_sprite_group.add(monster_group)
     player_group.add(player)
@@ -233,7 +233,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
 
 
     if VERBOSE:
-        print "Info: Player Done."
+        print("Info: Player Done.")
 
      
     #------------------------------------
@@ -244,7 +244,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
 
     #------------------------------------
     # Make the Level indicator
-    #print ("LEVEL_Y = " +str(LEVEL_Y) )
+    #print("LEVEL_Y = " +str(LEVEL_Y) )
     #level = Level(10, LEVEL_Y)
     #level.player = player
     #all_sprite_group.add(level)
@@ -270,13 +270,13 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
                 if m.hit_pts <= 0 and m.resurection_pts == 0:
                     del monster_list[n_monster_turn]
                 else:
-                    print "acting on n_monster_turn = " +str(n_monster_turn )
+                    print("acting on n_monster_turn = " +str(n_monster_turn ))
                     monster_list[n_monster_turn].my_turn = True
                     # TODO: separate Monster update() from changepos()/move() so that they can do ballistics
                     monster_list[n_monster_turn].changepos()
                     monster_list[n_monster_turn].my_turn = False
                 n_monster_turn += 1
-            #print "n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list))
+            #print("n_monster_turn = " +str(n_monster_turn ) +"   len(monster_list) = " +str(len(monster_list)))
             monster_wait_n = MONSTER_WAIT_N
 
         for event in pygame.event.get():
@@ -287,7 +287,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             elif event.type == pygame.KEYUP and event.key == pygame.K_p:
                 player.print_state()
             elif player.my_turn and event.type == pygame.KEYUP:
-                print "Player Turn"
+                print("Player Turn")
                 player.changepos(event.key)   # TODO player.my_turn = False in changepos()
                 #player.update()
 
@@ -320,7 +320,7 @@ def do_level(level, player, gm, Nmonsters, Npowerups):
             done_level = pygame.QUIT
 
         if not player.alive():   # poor nomenclature: this means the sprite disapeared from the screen
-            print "Level " +str(level) +" Complete!"
+            print("Level " +str(level) +" Complete!")
             done_level = True  # TODO: move on to next level instead
 
         if monster_wait_n > 0 and not player.my_turn:
@@ -345,10 +345,10 @@ while not done_game:
         Npowerups = N_POWERUPS 
     else:
         Nmonsters, Npowerups = level_monsters_powerups(level)
-    print "level, Nmonsters, Npowerups = " +str( [level, Nmonsters, Npowerups] )
+    print("level, Nmonsters, Npowerups = " +str( [level, Nmonsters, Npowerups] ))
     done_level, player = do_level(level, player, gm, Nmonsters, Npowerups)
     if player.hit_pts < 0:
-        print "You DIED!!!!!!!!!!"
+        print("You DIED!!!!!!!!!!")
         done_game = True
     elif done_level == pygame.QUIT:
         done_game = True
@@ -358,10 +358,10 @@ while not done_game:
         gm = init_map()
 
 
-print ""
-print "Player Exp Pts: " +str(player.exp_pts)
-print "Player Level:   " +str(player.level)
-print "Dungeon Level:  " +str(level)
+print("")
+print("Player Exp Pts: " +str(player.exp_pts))
+print("Player Level:   " +str(player.level))
+print("Dungeon Level:  " +str(level))
  
 pygame.quit()
 

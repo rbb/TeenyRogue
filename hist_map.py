@@ -13,8 +13,8 @@ import numpy as np
 #    myfile.write( str(n_map_attempts) +"\n" )
 
 d = np.genfromtxt('map_attempts.txt', delimiter=',')
-print "Map Generation attempts"
-print "Mean:    " +str( np.mean(d) )
-print "Std Dev: " +str( np.std(d) )
+print("Map Generation attempts")
+print("Mean:    " +str( np.mean(d) ))
+print("Std Dev: " +str( np.std(d) ))
 
 

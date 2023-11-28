@@ -65,12 +65,12 @@ class Player(BaseSprite):
                 return
             self.equipmentl.loc = key - pygame.K_1
             if VERBOSE:
-                print( "Player.use_equipment(" +str(key) +"): equipmentl.loc = " +str(self.equipmentl.loc) )
+                print("Player.use_equipment(" +str(key) +"): equipmentl.loc = " +str(self.equipmentl.loc))
                 #print( "Player.use_equipment(): equipmentl = " +str(self.equipmentl) )
             e = self.equipmentl.get_e_type()
             if e:
                 # If we got here, then the eqipment location is something other than none
-                print( "Player.use_equipment(" +str(key) +"): equipmentl["+str(self.equipmentl.loc) +"] = " +str(e) )
+                print("Player.use_equipment(" +str(key) +"): equipmentl["+str(self.equipmentl.loc) +"] = " +str(e) )
                 if self.equipmentl.ballistic():
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
@@ -80,33 +80,33 @@ class Player(BaseSprite):
                         self.weapon = e
                         self.n_target_monster = 0
                         self.monster_list[0].targeted = True
-                        print "n_target_monster = " +str(self.n_target_monster)
-                        print "Entering target mode"
+                        print("n_target_monster = " +str(self.n_target_monster))
+                        print("Entering target mode")
                 elif self.equipmentl.global_area():
                     self.mode = self.PM_GLOBAL
                     self.weapon = e
-                    print "Entering Global Area mode"
+                    print("Entering Global Area mode")
             else:
                 self.equipmentl.loc = None
         #---------------------------------------------------
         if pygame.K_h == key:
         #---------------------------------------------------
-            print "TODO: Help screen"
-            print ""
-            print "h       Print this help screen"
-            print "arrows  Move, change target"
-            print "1-4     Select equipment"
-            print "return  Activate equipment"
-            print "x       Drop equipment"
-            print "j,k,l,i Move"
-            print "k,i     Change target"
-            print "e       Exit level (only if no monsters)"
-            print "q       Quit"
+            print("TODO: Help screen")
+            print("")
+            print("h       Print this help screen")
+            print("arrows  Move, change target")
+            print("1-4     Select equipment")
+            print("return  Activate equipment")
+            print("x       Drop equipment")
+            print("j,k,l,i Move")
+            print("k,i     Change target")
+            print("e       Exit level (only if no monsters)")
+            print("q       Quit")
 
         #---------------------------------------------------
         if pygame.K_o == key:
         #---------------------------------------------------
-            print "TODO: options screen"
+            print("TODO: options screen")
 
         #---------------------------------------------------
         elif self.PM_MOVE == self.mode:
@@ -126,17 +126,17 @@ class Player(BaseSprite):
                 self.change_y = self.dy
                 self.my_turn = False
             elif key == pygame.K_e:
-                #print self.monsters
-                #print len(self.monsters)
+                #print(self.monsters)
+                #print(len(self.monsters))
                 if len(self.monsters) == 0:
                     # Note ladders is a sprite group, and can not be addressed as ldders[0]
                     for l in self.ladders: 
                         self.change_x = l.rect.x - self.rect.x
                         self.change_y = l.rect.y - self.rect.y
-                    print ("exit to ladder:")
-                    print ("   dx,dy  =:" +str(self.dx) +',' + str(self.dy))
-                    print ("   ladder =:" +str(l.rect.x) +',' + str(l.rect.y))
-                    print ("   change =:" +str(self.change_x) +',' + str(self.change_y))
+                    print("exit to ladder:")
+                    print("   dx,dy  =:" +str(self.dx) +',' + str(self.dy))
+                    print("   ladder =:" +str(l.rect.x) +',' + str(l.rect.y))
+                    print("   change =:" +str(self.change_x) +',' + str(self.change_y))
                     #self.my_turn = False
         #---------------------------------------------------
         elif self.PM_BALLISTIC_SELECT == self.mode:
@@ -146,7 +146,7 @@ class Player(BaseSprite):
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 self.change_x = 0
                 self.change_y = 0
-                print "Returning to MOVE mode, from Ballistic mode"
+                print("Returning to MOVE mode, from Ballistic mode")
 
             elif self.key_is_move(key):
                 ballistic_delta = 10
@@ -154,16 +154,16 @@ class Player(BaseSprite):
                 ballistic_change_y = 0
                 if key == pygame.K_LEFT or (key == pygame.K_j):
                     ballistic_change_x = -ballistic_delta
-                    print "my_ballistic LEFT"
+                    print("my_ballistic LEFT")
                 elif key == pygame.K_RIGHT or key == pygame.K_l:
                     ballistic_change_x = ballistic_delta
-                    print "my_ballistic RIGHT"
+                    print("my_ballistic RIGHT")
                 elif key == pygame.K_UP or key == pygame.K_i:
                     ballistic_change_y = -ballistic_delta
-                    print "my_ballistic UP"
+                    print("my_ballistic UP")
                 elif key == pygame.K_DOWN or key == pygame.K_k:
                     ballistic_change_y = ballistic_delta
-                    print "my_ballistic DOWN"
+                    print("my_ballistic DOWN")
 
                 self.my_ballistic = Ballistic((self.rect.x, self.rect.y), 
                         self.weapon, self.walls, self.monsters, 
@@ -176,7 +176,7 @@ class Player(BaseSprite):
                 # Cleanup
                 self.mode = self.PM_BALLISTIC_FIRE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                print "Transitioning to FIRE mode"
+                print("Transitioning to FIRE mode")
 
         #---------------------------------------------------
         elif self.PM_BALLISTIC_FIRE == self.mode:
@@ -188,26 +188,27 @@ class Player(BaseSprite):
         elif self.PM_TARGETING == self.mode:
         #---------------------------------------------------
             #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
-            print "Player Target Mode"
+            print("Player Target Mode")
             if pygame.K_ESCAPE == key:
-                print "n_targeted_monster = " +str(self.n_target_monster)
+                print("n_targeted_monster = " +str(self.n_target_monster))
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 self.equipmentl.loc = None
                 if self.n_target_monster != None:
                     self.monster_list[self.n_target_monster].targeted = False
-                    print "Disabling targeted monster " +str(self.n_target_monster)
+                    print("Disabling targeted monster "
+                            +str(self.n_target_monster))
                 self.n_target_monster = None
-                print "Returning to MOVE mode, from target mode"
+                print("Returning to MOVE mode, from target mode")
 
             if pygame.K_j == key or pygame.K_k == key or pygame.K_DOWN == key or pygame.K_UP == key :
                 N = len(self.monster_list)
-                print "Targeting N monsters = " +str(N)
+                print("Targeting N monsters = " +str(N))
                 if N == 0:
                     self.mode = self.PM_MOVE
                     self.weapon = None     #TODO: Do we need to define a mele weapon type??
                     self.n_target_monster = None
-                    print "Returning to MOVE mode, targeting found no monsters"
+                    print("Returning to MOVE mode, targeting found no monsters")
                 if pygame.K_k == key or pygame.K_DOWN == key:
                     if self.n_target_monster == None:
                         self.n_target_monster = 0
@@ -218,7 +219,8 @@ class Player(BaseSprite):
                         else:
                             self.n_target_monster += 1
                     self.monster_list[self.n_target_monster].targeted = True
-                    print "Targeting (down) selected monster " +str(self.n_target_monster)
+                    print("Targeting (down) selected monster "
+                            +str(self.n_target_monster))
                 if pygame.K_i == key or pygame.K_UP == key:
                     if self.n_target_monster == None:
                         self.n_target_monster = N-1
@@ -229,12 +231,14 @@ class Player(BaseSprite):
                         else:
                             self.n_target_monster -= 1 
                     self.monster_list[self.n_target_monster].targeted = True
-                    print "Targeting (up) selected monster " +str(self.n_target_monster)
+                    print("Targeting (up) selected monster "
+                            +str(self.n_target_monster))
 
             if pygame.K_RETURN == key:
                 if self.n_target_monster != None:
                     #self.monster_list[self.n_target_monster].targeted = False
-                    print "Disabling targeted monster " +str(self.n_target_monster)
+                    print("Disabling targeted monster "
+                            +str(self.n_target_monster))
                     self.do_damage(self.monster_list[self.n_target_monster], 0, self.equipmentl.damage() ) #no stun
                     self.mode = self.PM_MOVE
                     self.weapon = None     #TODO: Do we need to define a mele weapon type??
@@ -247,12 +251,12 @@ class Player(BaseSprite):
         elif self.PM_GLOBAL == self.mode:
         #---------------------------------------------------
             #TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
-            print "Player Global Area Mode"
+            print("Player Global Area Mode")
             if pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
                 self.equipmentl.loc = None
-                print "Returning to MOVE mode, from target mode"
+                print("Returning to MOVE mode, from target mode")
 
             elif pygame.K_RETURN == key:
                 for n in range(len(self.monster_list)):
@@ -265,7 +269,7 @@ class Player(BaseSprite):
         #---------------------------------------------------
         else:
         #---------------------------------------------------
-            print "Unknown Player Mode"
+            print("Unknown Player Mode")
             sys.exit(0)
 
 
@@ -359,10 +363,10 @@ class Player(BaseSprite):
                 block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
                 for block in block_hit_list:
                     #if VERBOSE:
-                    #    print "adding " +str(block.exp_pts) +" exp pts from powerup " +str(type(block)) +" = etype = " +str(block.e_type)
+                    #    print("adding " +str(block.exp_pts) +" exp pts from powerup " +str(type(block)) +" = etype = " +str(block.e_type))
                     self.exp_pts += block.exp_pts
                     self.equipmentl.add( block.equip.e_type )
-                    print self.equipmentl.get_list()
+                    print(self.equipmentl.get_list())
 
         elif self.PM_BALLISTIC_SELECT == self.mode:
             pass
@@ -372,17 +376,17 @@ class Player(BaseSprite):
                 if self.my_ballistic.exp_pts > 0:
                     # Monster exp pts were transferred to the ballistic. Here we transfer to player
                     self.add_exp_pts(self.my_ballistic.exp_pts)
-                    print "Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points"
-                    print "Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points"
+                    print("Dead Monster worth " +str(self.my_ballistic.exp_pts) +" points")
+                    print("Player killed Monster with my_ballistic. now at " +str(self.exp_pts) +" points")
                 self.my_ballistic = None
                 self.mode = self.PM_MOVE
                 self.weapon = None     #TODO: Do we need to define a mele weapon type??
-                print "Player.update(): my_ballistic hit something. Returning to MOVE mode"
+                print("Player.update(): my_ballistic hit something. Returning to MOVE mode")
                 self.my_turn = False
 
         elif self.PM_TARGETING == self.mode:
             pass
-        #print "Player.update complete"
+        #print("Player.update complete")
 
     def add_exp_pts(self, pts):
         self.exp_pts += pts
@@ -390,7 +394,7 @@ class Player(BaseSprite):
         for n in range(N):
             if self.exp_pts > self.level_limits[n]:
                 if VERBOSE:
-                    print "add_exp_pts: exp_pts = " +str(self.exp_pts) +" > level_limits[" +str(n) +"] = " +str(self.level_limits[n])
+                    print("add_exp_pts: exp_pts = " +str(self.exp_pts) +" > level_limits[" +str(n) +"] = " +str(self.level_limits[n]))
                 self.level = (N-n) +1
                 break
 
@@ -403,14 +407,14 @@ class Player(BaseSprite):
             if monster.not_dead_yet or monster.resurection_pts == 0:
                 # Note: not_dead_yet, used to prevent resurected monsters from providing additional exp pts
                 self.add_exp_pts(monster.exp_pts)
-                print "Dead Monster worth " +str(monster.exp_pts) +" points"
+                print("Dead Monster worth " +str(monster.exp_pts) +" points")
                 monster.not_dead_yet = False
-                #print str(type(monster))
+                #print(str(type(monster)))
                 #monster.prn()
-                print "Player killed Monster. now at " +str(self.exp_pts) +" exp points"
+                print("Player killed Monster. now at " +str(self.exp_pts) +" exp points")
                 #self.prn()
                 if monster.resurection_pts == 0:
-                    print "Dead targeted Monster, cleaning up."
+                    print("Dead targeted Monster, cleaning up.")
                     self.monsters.remove(monster)
                     for n in range(len(self.monster_list)):
                         if self.monster_list[n] == monster:
@@ -419,30 +423,30 @@ class Player(BaseSprite):
                     monster.kill()
 
     def print_state(self):
-        print "Player: print_state()"
+        print("Player: print_state()")
 
-        print "powerups:"
-        print "---------"
+        print("powerups:")
+        print("---------")
         for p in self.powerups:
             p.prn()
-        print ""
+        print("")
 
-        print "all_sprites:"
-        print "-------------"
+        print("all_sprites:")
+        print("-------------")
         for p in self.all_sprites:
-            print str([p.rect.x, p.rect.y]) +", " +str(p.get_map_pos())
+            print(str([p.rect.x, p.rect.y]) +", " +str(p.get_map_pos()))
             #p.prn()
-        print ""
+        print("")
 
-        print "ballistic_sprites:"
-        print "------------------"
+        print("ballistic_sprites:")
+        print("------------------")
         for p in self.ballistic_sprites:
             p.prn()
-        print ""
+        print("")
 
         if self.monsters:
-            print "monsters:"
-            print "-------------"
+            print("monsters:")
+            print("-------------")
             for p in self.monsters:
                 p.prn()
-            print ""
+            print("")
