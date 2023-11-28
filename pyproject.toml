@@ -1,0 +1,14 @@
+[project]
+name = "tnyrogue"
+version = "0.0.1"
+dependencies = [
+    "pygame",
+    "numpy",
+]
+
+[tool.setuptools]
+#packages
+package-dir = {"" = "."}
+
+[project.scripts]
+tnyrogue = "tnyrogue:main"
