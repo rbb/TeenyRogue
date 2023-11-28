@@ -3,70 +3,68 @@ import numpy as np
 
 gm = GameMap.game_map(5,10)
 gm.prn_m()
-print ("\n");
+print("\n");
 
 print ("------- edgewalls() ----------");
 gm.setedges(0)
 gm.prn_m()
 gm.setedges(1)
 gm.prn_m()
-print ("\n");
+print("\n");
 
 
-print ("------- newrand() ----------");
+print("------- newrand() ----------");
 gm.newrand()
 gm.prn_m()
 print( gm.m.mean() )
-print ("\n");
+print("\n");
 
-print ("------- clearpath() ----------");
+print("------- clearpath() ----------");
 gm.clearpath()
 gm.prn_m()
 print( gm.m.mean() )
-print ("\n");
+print("\n");
 
 
-print ("------- is_wall() ----------");
-print ( gm.is_wall(0,0) )
-print ( gm.is_wall(gm.X-1,gm.Y-1) )
-print ( gm.is_wall(gm.X,gm.Y) )
-print ("\n");
+print("------- is_wall() ----------");
+print( gm.is_wall(0,0) )
+print( gm.is_wall(gm.X-1,gm.Y-1) )
+print( gm.is_wall(gm.X,gm.Y) )
+print("\n");
 
 
-print ("------- randempty() ----------");
-print ( gm.randempty() )
-print ("\n");
+print("------- randempty() ----------");
+print( gm.randempty() )
+print("\n");
 
-print ("------- newrandsnake() ----------");
+print("------- newrandsnake() ----------");
 gm.newrandsnake()
 gm.prn_m()
 ret_valid = gm.is_valid()
-print "is_valid() returns: " +str(ret_valid)
+print("is_valid() returns: " +str(ret_valid))
 
 N = 1000
 snake_valids = np.zeros( N )
 for n in range(N):
     gm.newrandsnake()
     snake_valids[n] = gm.is_valid()
-print "average = " +str(snake_valids.mean() )
-print ("\n");
+print("average = " +str(snake_valids.mean() ))
+print("\n");
 
-print ("------- newrandblocks() ----------");
+print("------- newrandblocks() ----------");
 gm.newrandblocks()
 gm.prn_m()
 ret_valid = gm.is_valid()
-print "is_valid() returns: " +str(ret_valid)
+print("is_valid() returns: " +str(ret_valid))
 
 block_valids = np.zeros( N )
 for n in range(N):
     gm.newrandblocks()
     block_valids[n] = gm.is_valid()
-print "average = " +str(block_valids.mean() )
-print ("\n");
+print("average = " +str(block_valids.mean() ))
+print("\n");
 
-
-
-print ("=========================================\n")
+print("=========================================\n")
 
 gm = GameMap.game_map(5,5)
 gm.m = np.array([ [ 1,1,1,1,1],
@@ -76,14 +74,14 @@ gm.m = np.array([ [ 1,1,1,1,1],
                   [ 1,1,1,1,1] ])
 gm.prn_m()
 print( gm.m.mean() )
-print ("------- clearpath() ----------");
+print("------- clearpath() ----------");
 gm.clearpath()
 gm.prn_m()
 print( gm.m.mean() )
-print ("\n");
-print ("\n");
+print("\n");
+print("\n");
 
-print ("=========================================\n")
+print("=========================================\n")
 #gm = GameMap.game_map(5,6)
 #gm.m = np.array([ [ 1,1,1,1,1],
 #                  [ 1,0,1,0,1],
@@ -92,10 +90,10 @@ print ("=========================================\n")
 #                  [ 1,1,1,1,1],
 #                  [ 1,1,1,1,1] ])
 #gm.prn_m()
-#print "shape = " +str(gm.m.shape)
-#print "valid_path(1,1, 4,1) = " +str( gm.valid_path(1,1,4,1) )
-##print "the non-valid map shows up as " +str(gm.valid())
-#print ("\n");
+#print("shape = " +str(gm.m.shape))
+#print("valid_path(1,1, 4,1) = " +str( gm.valid_path(1,1,4,1) ))
+##print("the non-valid map shows up as " +str(gm.valid()))
+#print(("\n");)
 
 gm = GameMap.game_map(5,5)
 gm.m = np.array([ [ 1,1,1,1,1],
@@ -111,31 +109,31 @@ valid =np.array([ [ 1,1,1,1,1],
                   [ 1,0,0,0,1],
                   [ 1,1,1,1,1] ], int)
 ret_valid = gm.is_valid()
-print "is_valid() returns: " +str(ret_valid)
+print("is_valid() returns: " +str(ret_valid))
 if np.all(False == ret_valid):
-    print "is_valid() correct return"
+    print("is_valid() correct return")
 else:
-    print "is_valid() ERROR"
+    print("is_valid() ERROR")
 
 
-print "Expected gm.valid state"
+print("Expected gm.valid state")
 gm.prn(valid)
-print""
-print "Test map output"
+print()
+print("Test map output")
 gm.prn_m()
-print""
-print "Actual gm.valid() state"
+print()
+print("Actual gm.valid() state")
 gm.prn_valid()
 
 if np.all(gm.valid == valid):
-    print "gm.valid state correct"
+    print("gm.valid state correct")
 else:
-    print "gm.valid state ERROR"
+    print("gm.valid state ERROR")
 
 
 
-print ("=========================================\n")
-print "Checking diagnal path is only exit from a tile"
+print("=========================================\n")
+print("Checking diagnal path is only exit from a tile")
 
 gm = GameMap.game_map(5,5)
 gm.m = np.array([ [ 1,1,1,1,1],
@@ -151,35 +149,35 @@ valid =np.array([ [ 1,1,1,1,1],
                   [ 1,1,1,1,1],
                   [ 1,1,1,1,1] ], int)
 ret_valid = gm.is_valid()
-print "is_valid() returns: " +str(ret_valid)
+print("is_valid() returns: " +str(ret_valid))
 if np.all(False == ret_valid):
-    print "is_valid() correct return"
+    print("is_valid() correct return")
 else:
-    print "is_valid() ERROR"
+    print("is_valid() ERROR")
 
 
-print "Expected gm.valid state"
+print("Expected gm.valid state")
 gm.prn(valid)
-print""
-print "Test map output"
+print()
+print("Test map output")
 gm.prn_m()
-print""
-print "Actual gm.valid() state"
+print()
+print("Actual gm.valid() state")
 gm.prn_valid()
 
 if np.all(gm.valid == valid):
-    print "gm.valid state correct"
+    print("gm.valid state correct")
 else:
-    print "gm.valid state ERROR"
+    print("gm.valid state ERROR")
 
 
 
 
 
 
-print ("=========================================\n")
+print("=========================================\n")
 N = 100
-print "generating " +str(N) +" maps of size [10, 10] ..."
+print("generating " +str(N) +" maps of size [10, 10] ...")
 list_attempts = []
 for n in range(N):
     n_map_attempts = 0
@@ -197,13 +195,13 @@ for n in range(N):
             break
     list_attempts.append(n_map_attempts)
 np_attempts = np.array(list_attempts)
-print "Map Generation attempts"
-print "Mean:    " +str( np.mean(np_attempts) )
-print "Std Dev: " +str( np.std(np_attempts) )
-print "Max:     " +str( np.max(np_attempts) )
+print("Map Generation attempts")
+print("Mean:    " +str( np.mean(np_attempts) ))
+print("Std Dev: " +str( np.std(np_attempts) ))
+print("Max:     " +str( np.max(np_attempts) ))
 bins = [0,2,4,6,8,10,12,14,16,18,20]
 h = np.histogram(np_attempts, bins)
-print "Histogram bins " +str(bins)
-print "Histogram      " +str(h[0])
-print ("=========================================\n")
+print("Histogram bins " +str(bins))
+print("Histogram      " +str(h[0]))
+print("=========================================\n")
 

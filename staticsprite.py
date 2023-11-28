@@ -111,7 +111,7 @@ class EquipmentList:
             nrm = self.loc
         else:
             nrm = n
-        print "EquipmentList.rm: n = " +str(nrm)
+        print("EquipmentList.rm: n = " +str(nrm))
         if E_NONE != self.e_list[nrm]:
             self.e_list[nrm] = E_NONE
             return True
@@ -211,8 +211,8 @@ class Status(pygame.sprite.Sprite):
 
     def prn(self):
         """print some basic (debug) info"""
-        print "rect(x,y):" +str([self.rect.x, self.rect.y])
-        print "get_map_pos():" +str(self.get_map_pos())
+        print("rect(x,y):" +str([self.rect.x, self.rect.y]))
+        print("get_map_pos():" +str(self.get_map_pos()))
 
     #def new_level(self):
     #    self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
@@ -296,8 +296,8 @@ class Wall(pygame.sprite.Sprite):
 
     def prn(self):
         """print some basic (debug) info about Wall sprites"""
-        print "rect(x,y):" +str([self.rect.x, self.rect.y])
-        print "get_map_pos():" +str(self.get_map_pos())
+        print("rect(x,y):" +str([self.rect.x, self.rect.y]))
+        print("get_map_pos():" +str(self.get_map_pos()))
 
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)
@@ -317,8 +317,8 @@ class Ladder(pygame.sprite.DirtySprite):
 
     def prn(self):
         """print some basic (debug) info about Ladder sprites"""
-        print "rect(x,y):" +str([self.rect.x, self.rect.y])
-        print "get_map_pos():" +str(self.get_map_pos())
+        print("rect(x,y):" +str([self.rect.x, self.rect.y]))
+        print("get_map_pos():" +str(self.get_map_pos()))
  
     def get_map_pos(self):
         return (self.rect.x / SCALE, self.rect.y / SCALE)

@@ -44,7 +44,7 @@ class BaseSprite(pygame.sprite.Sprite):
         self.rect.x = start_pos[0] * SCALE   # Note: rect is graphic position, not map position
 
     def get_map_pos(self):
-        return (self.rect.x / SCALE, self.rect.y / SCALE)
+        return (int(self.rect.x / SCALE), int(self.rect.y / SCALE))
 
     def changepos(self, key):
         self.change_x = 0
@@ -64,14 +64,14 @@ class BaseSprite(pygame.sprite.Sprite):
     def prn(self):
         """print some basic (debug) info about BaseSprites"""
         #if VERBOSE:
-        print "change_x,y:" +str([self.change_x, self.change_y])
-        print "dx,y:      " +str([self.dx, self.dy])
-        print "hit_pts:   " +str(self.hit_pts)
-        print "exp_pts:   " +str(self.exp_pts)
-        print "damage:    " +str(self.damage)
+        print("change_x,y:" +str([self.change_x, self.change_y]))
+        print("dx,y:      " +str([self.dx, self.dy]))
+        print("hit_pts:   " +str(self.hit_pts))
+        print("exp_pts:   " +str(self.exp_pts))
+        print("damage:    " +str(self.damage))
         #print "monsters:    " +str(self.monsters)
         #print "walls:    " +str(self.walls)
-        print ""
+        print("")
 
     def move_collision (self, sprite_group):
         """BaseSprite Collision Detection"""
@@ -93,7 +93,7 @@ class BaseSprite(pygame.sprite.Sprite):
         return False
 
     def wound (self, pts, stun):
-        print "BaseSprite.do_damage(): pre hit_pts = " +str(self.hit_pts)
+        print("BaseSprite.do_damage(): pre hit_pts = " +str(self.hit_pts))
         if self.hit_pts > 0:
             self.hit_pts -= pts
         if self.hit_pts < 0:
@@ -102,7 +102,7 @@ class BaseSprite(pygame.sprite.Sprite):
             self.resurection_cnt = self.resurection_pts
         else:
             self.stun_level += stun
-        print "BaseSprite.do_damage(): new hit_pts = " +str(self.hit_pts)
+        print("BaseSprite.do_damage(): new hit_pts = " +str(self.hit_pts))
 
     def heal(self, pts):
         self.hit_pts += pts
@@ -123,8 +123,8 @@ class Powerup(BaseSprite):
             self.equip = equip
 
         if None == self.equip.image_fname():
-            print "Powerup.__init__(): Error - fname == None"
-            print "Powerup.__init__(): e_type = " +str(self.equip.e_type)
+            print("Powerup.__init__(): Error - fname == None")
+            print("Powerup.__init__(): e_type = " +str(self.equip.e_type))
             sys.exit(0)
         image = pygame.image.load( self.equip.image_fname() )
         super(Powerup, self).__init__(start_pos, image)
@@ -155,7 +155,7 @@ class Ballistic(BaseSprite):
         self.e_type = self.equip.e_type
         fname = self.equip.image_fname()
         if None == fname:
-            print "Ballistic.__init__(): Error - fname == None"
+            print("Ballistic.__init__(): Error - fname == None")
             sys.exit(0)
         image = pygame.image.load( fname )
         start_pos = [start_graph_pos[0] / SCALE, start_graph_pos[1] / SCALE]
@@ -170,11 +170,11 @@ class Ballistic(BaseSprite):
         self.exp_pts = 0      # Use Ballistic.exp_pts as a pass through for the monster killed
         self.parent = parent
         if VERBOSE:
-            print "Ballistic.__init__(): e_type = " +str(e_type)
-            print "Ballistic.__init__(): self.e_type = " +str(self.e_type)
-            print "Ballistic.__init__(): fname = " +str(fname)
-            print "Ballistic.__init__(): change_x = " +str(change_x)
-            print "Ballistic.__init__(): change_y = " +str(change_y)
+            print("Ballistic.__init__(): e_type = " +str(e_type))
+            print("Ballistic.__init__(): self.e_type = " +str(self.e_type))
+            print("Ballistic.__init__(): fname = " +str(fname))
+            print("Ballistic.__init__(): change_x = " +str(change_x))
+            print("Ballistic.__init__(): change_y = " +str(change_y))
 
     #TODO: def prn(): with extra Ballistic specific info
 
@@ -185,16 +185,17 @@ class Ballistic(BaseSprite):
         """ Update the Ballistic position. """
         super(Ballistic, self).update()
         #if VERBOSE:
-        #    print "Ballistic.update(): x,y = " +str([self.rect.x, self.rect.y])
+        #    print("Ballistic.update(): x,y = " +str([self.rect.x,
+        #    self.rect.y]))
         self.rect.x += self.change_x
         self.rect.y += self.change_y
         block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
         for block in block_hit_list:
-            print "Ballistic.update() Hit Monster"
+            print("Ballistic.update() Hit Monster")
             block.wound(self.damage, 0) # No stun
             if block.hit_pts <= 0:
                 if block.not_dead_yet or block.resurection_pts == 0:
-                    print "Monster dead from Ballistic, cleaning it up."
+                    print("Monster dead from Ballistic, cleaning it up.")
                     self.exp_pts = block.exp_pts    # Transfer the pts to the ballistic sprite, the player will grab them later
 
                     if block.resurection_pts == 0:
@@ -210,7 +211,7 @@ class Ballistic(BaseSprite):
         for block in block_hit_list:
             #self.mark_for_del()
             self.kill()
-            print "Ballistic.update(): Hit a Wall!"
+            print("Ballistic.update(): Hit a Wall!")
 
 
     def active(self):
@@ -261,7 +262,7 @@ class Stun:
 
 
     def draw_stun(self):
-        m = self.n/self.DIV
+        m = int(self.n/self.DIV)
         self.sprite = self.base_image.copy()
         pygame.draw.line(self.sprite, YELLOW, self.lines[m][0], self.lines[m][1], 1) 
         pygame.draw.line(self.sprite, YELLOW, self.lines[m][2], self.lines[m][3], 1) 
@@ -319,33 +320,34 @@ class Monster(BaseSprite):
     def prn(self):
         """print some basic (debug) info about BaseSprites"""
         super(Monster, self).prn()
-        print "hit_pts:" +str(self.hit_pts)
-        print "max_hit_pts:" +str(self.max_hit_pts)
-        print "moves:" +str(self.moves)
-        print "wall_stop:" +str(self.wall_stop)
-        print "ballistic:" +str(self.ballistic)
-        print "resurection_pts:" +str(self.resurection_pts)
-        print "not_dead_yet:" +str(self.not_dead_yet)
-        print "exp_pts:" +str(self.exp_pts)
-        print "damage:" +str(self.damage)
-        print "stun_level:" +str(self.stun_level)
-        print "recover_rate:" +str(self.recover_rate)
-        print "stun:" +str(self.stun)
-        print "targeted:" +str(self.targeted)
-        print ""
+        print("hit_pts:" +str(self.hit_pts))
+        print("max_hit_pts:" +str(self.max_hit_pts))
+        print("moves:" +str(self.moves))
+        print("wall_stop:" +str(self.wall_stop))
+        print("ballistic:" +str(self.ballistic))
+        print("resurection_pts:" +str(self.resurection_pts))
+        print("not_dead_yet:" +str(self.not_dead_yet))
+        print("exp_pts:" +str(self.exp_pts))
+        print("damage:" +str(self.damage))
+        print("stun_level:" +str(self.stun_level))
+        print("recover_rate:" +str(self.recover_rate))
+        print("stun:" +str(self.stun))
+        print("targeted:" +str(self.targeted))
+        print("")
 
     #def __getattr__(self, name):
     #    return getattr(self.BaseSprite, name)
     def changepos(self):
         """ Update the Monster position, etc """
-        print "Monster.changepos: type() = " +M_DATA[self.m_type][M_IMAGE_FNAME]
+        print("Monster.changepos: type() = "
+                +M_DATA[self.m_type][M_IMAGE_FNAME])
         if not MONSTER_MOVE: # Debug - set False in utils.py, to disable monster movement
             return
         if self.player.hit_pts <= 0:
             return
         if self.player.my_turn:
             if VERBOSE:
-                print "WARNING: Monster.changepos() during player's turn"
+                print("WARNING: Monster.changepos() during player's turn")
             return
 
         if self.stun_level > 0:
@@ -353,14 +355,15 @@ class Monster(BaseSprite):
             if self.stun_level < 0:
                 self.stun_level = 0
             if VERBOSE:
-                print "Monster stunned. Recovered to stun_level = " +str(self.stun_level)
+                print("Monster stunned. Recovered to stun_level = "
+                        +str(self.stun_level))
             return
 
         for n in range(self.moves,0,-1):
             self.find_move()
             if n > 1:
                 if VERBOSE:
-                    print "Monster.changepos: doing intermediate update()"
+                    print("Monster.changepos: doing intermediate update()")
                 self.update()
                 pygame.time.wait( 200 ) #milliseconds
 
@@ -370,7 +373,8 @@ class Monster(BaseSprite):
         # First, check to see if we're dead, waiting to be resurected
         if self.hit_pts == 0:
             self.resurection_cnt -= 1
-            print "Monster.find_move: resurection_cnt = " +str(self.resurection_cnt)
+            print("Monster.find_move: resurection_cnt = "
+                    +str(self.resurection_cnt))
             if self.resurection_cnt <= 0:
                 self.heal( self.resurection_pts )
             else:
@@ -385,8 +389,10 @@ class Monster(BaseSprite):
         d = abs(dy) - abs(dx) # d > 1 means y larger, d < 0 means x larger
         dsum = abs(dy) + abs(dx) # dsum = 1 means player directly adjacent
         if VERBOSE:
-            print "Monster.find_move: x,y = " +str([x,y]) +",   px,py = " +str([px,py])
-            print "Monster.find_move: dx,dy = " +str([dx,dy]) +",   d = " +str(d) +",   dsum = " +str(dsum)
+            print("Monster.find_move: x,y = " +str([x,y]) +",   px,py = "
+                    +str([px,py]))
+            print("Monster.find_move: dx,dy = " +str([dx,dy]) +",   d = "
+                    +str(d) +",   dsum = " +str(dsum))
 
         # attack directly if adjacent
         if dsum == 1:
@@ -406,13 +412,15 @@ class Monster(BaseSprite):
             #for block in block_hit_list:
             #    # Do the damage
             #    self.player.hit_pts -= self.damage
-            #    print "Monster.changepos() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+            #    print("Monster.changepos() Hit Player: new hit_pts = "
+            #    +str(self.player.hit_pts))
             #    if self.player.hit_pts < 0:
             #        return
             # Do the damage
             self.player.hit_pts -= self.damage
             if VERBOSE:
-                print "Monster.find_move() Hit Player: new hit_pts = " +str(self.player.hit_pts)
+                print("Monster.find_move() Hit Player: new hit_pts = "
+                        +str(self.player.hit_pts))
             #if self.player.hit_pts < 0:
             #    return
             return
@@ -423,25 +431,25 @@ class Monster(BaseSprite):
             collision = self.move(0, SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going South towards player"
+                    print("Monster.find_move() going South towards player")
                 return
         if d >= 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
             collision = self.move(0, -SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going North towards player"
+                    print("Monster.find_move() going North towards player")
                 return
         if d < 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
             collision = self.move(SCALE, 0)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going East towards player"
+                    print("Monster.find_move() going East towards player")
                 return
         if d < 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
             collision = self.move(-SCALE, 0)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going West towards player"
+                    print("Monster.find_move() going West towards player")
                 return
 
         # We can't head directly towards player
@@ -450,32 +458,32 @@ class Monster(BaseSprite):
             collision = self.move(0, SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going South"
+                    print("Monster.find_move() going South")
                 return
         if d < 0 and dy < 0 and not self.level_map.is_wall(x, y -1):
             collision = self.move(0, -SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going North"
+                    print("Monster.find_move() going North")
                 return
         if d >= 0 and dx > 0 and not self.level_map.is_wall(x +1, y):
             collision = self.move(SCALE, 0)
             if VERBOSE:
                 if not collision:
-                    print "Monster.find_move() going East"
+                    print("Monster.find_move() going East")
                 return
         if d >= 0 and dx < 0 and not self.level_map.is_wall(x -1, y):
             collision = self.move(-SCALE, 0)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() going West"
+                    print("Monster.find_move() going West")
                 return
 
         # If we can't figure out where to go, then just pick at random
         #else:
             #while True:
             #    cx, cy = self.get_map_pos()
-            #    #print "x,y = " +str( [x,y]) +"    cx,cy = " +str( [cx,cy] )
+            #    #print("x,y = " +str( [x,y]) +"    cx,cy = " +str( [cx,cy] ))
             #    if x != cx or y != cy:
             #        break
 
@@ -486,28 +494,28 @@ class Monster(BaseSprite):
             collision = self.move(0, SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() randomly going South"
+                    print("Monster.find_move() randomly going South")
                 return
         if r < 2 and not self.level_map.is_wall(x, y -1):
             #self.rect.y -= SCALE
             collision = self.move(0, -SCALE)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() randomly going North"
+                    print("Monster.find_move() randomly going North")
                 return
         if r < 3 and not self.level_map.is_wall(x +1, y):
             #self.rect.x += SCALE
             collision = self.move(SCALE, 0)
             if VERBOSE:
                 if not collision:
-                    print "Monster.find_move() randomly going East"
+                    print("Monster.find_move() randomly going East")
                 return
         if r < 4 and not self.level_map.is_wall(x -1, y):
             #self.rect.x -= SCALE
             collision = self.move(-SCALE, 0)
             if not collision:
                 if VERBOSE:
-                    print "Monster.find_move() randomly going West"
+                    print("Monster.find_move() randomly going West")
                 return
 
     def move(self, dx, dy):
@@ -518,7 +526,7 @@ class Monster(BaseSprite):
         self.rect.y += dy
         self.change_y = dy
         if VERBOSE:
-            print "Monster.move: dx,dy = " +str([dx,dy])
+            print("Monster.move: dx,dy = " +str([dx,dy]))
 
         #print ("Monster.move: monsters = " + str(self.monsters) )
         collision = False
@@ -528,7 +536,7 @@ class Monster(BaseSprite):
             self.monsters.add(self)
         else:
             if VERBOSE:
-                print "Monster.move: No other monsters"
+                print("Monster.move: No other monsters")
         if collision:
             self.rect.x -= dx
             self.change_x = 0
@@ -536,7 +544,7 @@ class Monster(BaseSprite):
             self.rect.y -= dy
             self.change_y = 0
             if VERBOSE:
-                print "Monster.move collision with monster detected"
+                print("Monster.move collision with monster detected")
         return collision
             
 

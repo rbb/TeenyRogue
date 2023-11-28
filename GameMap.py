@@ -115,21 +115,21 @@ class game_map():
     def is_wall(self, x, y):
         if x > self.X-1 or y > self.Y-1:
             return True
-        if self.m[y,x] == WALL:
+        if self.m[y, x] == WALL:
             return True
         return False
 
     def is_ladder(self, x, y):
         if x > self.X-1 or y > self.Y-1:
             return False
-        if self.m[y,x] == LADDER:
+        if self.m[y, x] == LADDER:
             return True
         return False
 
     def is_space(self, x, y):
         if x > self.X-1 or y > self.Y-1:
             return False
-        if self.m[y,x] == SPACE:
+        if self.m[y, x] == SPACE:
             return True
         return False
 
@@ -172,7 +172,7 @@ class game_map():
                 elif tile == UNEXPLORED:
                     s += 'vv'
             s += "\n"
-        print s
+        print(s)
     def prn_m(self):
         """ Print the map in ASCII, to stdout"""
         self.prn(self.m)

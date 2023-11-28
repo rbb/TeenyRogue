@@ -76,7 +76,7 @@ def randint(maxval=1):
     n = int(round( n_float ))
     #n = round( np.random.uniform(0, maxval-1) )
     #if VERBOSE:
-    #    print ("randint.maxval = " +str(maxval) )
-    #    print ("randint.n_float = " +str(n_float) )
-    #    print ("randint.n = " +str(n) )
+    #    print("randint.maxval = " +str(maxval) )
+    #    print("randint.n_float = " +str(n_float) )
+    #    print("randint.n = " +str(n) )
     return n
