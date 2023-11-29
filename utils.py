@@ -13,11 +13,11 @@ else:
     MAP_W = 10
     MAP_H = 10
 SCALE = 32
-SCREEN_W = SCALE*MAP_W
-SCREEN_H = SCALE*MAP_H
-STATUS_H = 64 # 48
-LEVEL_Y = SCREEN_H + STATUS_H/2 +1
- 
+SCREEN_W = SCALE * MAP_W
+SCREEN_H = SCALE * MAP_H
+STATUS_H = 64  # 48
+LEVEL_Y = SCREEN_H + STATUS_H / 2 + 1
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -34,26 +34,26 @@ GRAY_50 = (128, 128, 128)
 GRAY_75 = (192, 192, 192)
 GREENISH = (67, 232, 43)
 YELLOW = (244, 241, 0)
- 
-#PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png", 
+
+# PU_IMAGES = ["images/dagger32.png", "images/firebomb32.png", "images/firestorm32.png",
 #             "images/freeze32.png", "images/lightning32.png" ]
 
 #           Image Name             Function Name
-L_DATA = [["images/thor.png",          "bonus_lightning"],
-          ["images/bluedrop.png",      "bonus_freeze_throw"],
-          ["images/flame.png",         "bonus_flame_throw"],
-          ["images/flamebomb.png",     "bonus_flame_bomb"],
-          ["images/freezebomb.png",    "bonus_freezebomb"],
-          ["images/dagger32.png",      "bonus_dagger_damage"],
-          ["images/dagger_bundle.png", "bonus_dagger_bundle"],
-          ];
+L_DATA = [["images/thor.png",          "bonus_lightning"],        # noqa: E241
+          ["images/bluedrop.png",      "bonus_freeze_throw"],     # noqa: E241
+          ["images/flame.png",         "bonus_flame_throw"],      # noqa: E241
+          ["images/flamebomb.png",     "bonus_flame_bomb"],       # noqa: E241
+          ["images/freezebomb.png",    "bonus_freezebomb"],       # noqa: E241
+          ["images/dagger32.png",      "bonus_dagger_damage"],    # noqa: E241
+          ["images/dagger_bundle.png", "bonus_dagger_bundle"],    # noqa: E241
+          ]
 
- 
+
 def randint(maxval=1):
-    n_float = np.random.uniform(0, maxval-1)
-    n = int(round( n_float ))
-    #n = round( np.random.uniform(0, maxval-1) )
-    #if VERBOSE:
+    n_float = np.random.uniform(0, maxval - 1)
+    n = int(round(n_float))
+    # n = round( np.random.uniform(0, maxval-1) )
+    # if VERBOSE:
     #    print("randint.maxval = " +str(maxval) )
     #    print("randint.n_float = " +str(n_float) )
     #    print("randint.n = " +str(n) )
