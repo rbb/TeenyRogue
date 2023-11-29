@@ -186,7 +186,7 @@ class MyGame():
                 #else:
                 #    m = Monster( self.gm.randempty(), self.gm )
                 m = Monster( self.gm.randempty(), self.gm )
-                #m = Monster( self.gm.randempty(), self.gm, M_SKULL )      #---------- DEBUG -------------
+                #m = Monster( self.gm.randempty(), self.gm, Monster.M_SKULL )      #---------- DEBUG -------------
                 #m = Monster( self.gm.randempty(), self.gm, 6 )      #---------- DEBUG -------------
                 block_hit_monster_group = pygame.sprite.spritecollide(m, monster_group, False)
                 block_hit_powerup_group = pygame.sprite.spritecollide(m, powerup_group, False)
