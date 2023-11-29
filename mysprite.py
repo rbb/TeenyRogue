@@ -278,30 +278,54 @@ class Stun:
 
 class Monster(BaseSprite):
     """ Monsters. Need I say more? """
- 
-    def __init__(self, start_pos, level_map, m_type=None):
-        #image = pygame.image.load('images/knight32.png')
-        #super(Monster, self).__init__(start_pos, image)
-        #BaseSprite.__init__(self, start_pos, image)
+    M_DATA = [
+    #                          hit          moves/ exp  stopped  ballistic
+    #    Image name            pts, Damage, turn,  pts,  walls,    Damage,  Resurection
+        ["images/bomba32.png",   2,    1,     1,   200,    False,    True ,     0 ],
+        ["images/ghost32.png",   2,    1,     1,   100,    True ,    False,     0 ],
+        ["images/knight32.png",  2,    2,     1,   250,    False,    False,     0 ],
+        ["images/rat32.png",     1,    1,     1,    50,    False,    False,     0 ],
+        ["images/skull32.png",   2,    1,     1,   100,    False,    False,     2 ],
+        ["images/troll32.png",   2,    1,     1,   100,    False,    False,     0 ],
+        ["images/wolf32.png",    2,    1,     2,   100,    False,    False,     0 ],
+        # ["images/treasure32.png",0,    0,     0,   500,    False,    False,    0 ],
+    ]
+    M_SKULL = 4
 
+    M_IMAGE_FNAME = 0
+    M_HIT_PTS = 1
+    M_DAMAGE = 2
+    M_MOVES = 3             # Number of moves/attacks per turn
+    M_EXP_PTS = 4           # Number of experience points earned for killing the monster
+    M_WALL_STOP = 5         # True: Walls stop movement, False: monster goes through walls
+    M_BALLISTIC = 6         # Attacks do ballistic damage
+    M_RESURECTION = 7       # Monster comes back from the dead, in this number of moves, if 0 then never.
+
+    def lookup(self, field):
+        """Do a database lookup on monster parameters."""
+        return self.M_DATA[self.m_type][field]
+
+    def __init__(self, start_pos, level_map, m_type=None):
         if (m_type == None):
-            self.m_type = int(round( np.random.uniform(0, len(M_DATA)-1) ))
+            self.m_type = int(round( np.random.uniform(0, len(self.M_DATA)-1) ))
         else:
             self.m_type = m_type
-        fname = M_DATA[self.m_type][M_IMAGE_FNAME] 
+        fname = self.lookup(self.M_IMAGE_FNAME)
         image = pygame.image.load( fname )
         #image.scroll(0, -1)
         super(Monster, self).__init__(start_pos, image)
         self.base_image = image
-        self.hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
-        self.max_hit_pts = M_DATA[self.m_type][M_HIT_PTS] 
-        self.moves = M_DATA[self.m_type][M_MOVES] 
-        self.wall_stop = M_DATA[self.m_type][M_WALL_STOP] 
-        self.ballistic = M_DATA[self.m_type][M_BALLISTIC] 
-        self.resurection_pts = M_DATA[self.m_type][M_RESURECTION] 
+
+        self.hit_pts = self.lookup(self.M_HIT_PTS) 
+        self.max_hit_pts = self.lookup(self.M_HIT_PTS) 
+        self.moves = self.lookup(self.M_MOVES)
+        self.wall_stop = self.lookup(self.M_WALL_STOP)
+        self.ballistic = self.lookup(self.M_BALLISTIC)
+        self.resurection_pts = self.lookup(self.M_RESURECTION)
+        self.exp_pts = self.lookup(self.M_EXP_PTS)
+        self.damage = self.lookup(self.M_DAMAGE)
+
         self.not_dead_yet = True    # This is used in conjunction with resurection_pts to prevent gaining exp pts every time a resurected monster is killed
-        self.exp_pts = M_DATA[self.m_type][M_EXP_PTS] 
-        self.damage = M_DATA[self.m_type][M_DAMAGE] 
         self.player = None
         #self.players = None
         self.monsters = None
@@ -340,7 +364,9 @@ class Monster(BaseSprite):
     def changepos(self):
         """ Update the Monster position, etc """
         print("Monster.changepos: type() = "
-                +M_DATA[self.m_type][M_IMAGE_FNAME])
+                #+ self.M_DATA[self.m_type][self.M_IMAGE_FNAME]
+                + self.lookup(self.M_IMAGE_FNAME)
+        )
         if not MONSTER_MOVE: # Debug - set False in utils.py, to disable monster movement
             return
         if self.player.hit_pts <= 0:
