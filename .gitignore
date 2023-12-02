@@ -7,3 +7,5 @@ tags
 map_attempts.txt
 .~lock.*
 README.html
+env/
+tnyrogue.egg-info/
