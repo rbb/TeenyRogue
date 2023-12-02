@@ -38,6 +38,7 @@ Tasks
    - Prevent monsters from being on ladder
    - Fix `GameMap.is_valid()` for a diagnal is the only exit from a tile
    - Fix `GameMap.is_valid()` if monsters can't be reached without crossing ladder
+   - Fix wrong sprite shown when throwing daggers (maybe other things too?)
 - Misc
    - Refactor, so that there is some sort of world state variable that can be passed around, 
      instead of putting a bunch of stuff in the 'player' variable
