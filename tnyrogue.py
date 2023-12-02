@@ -316,8 +316,10 @@ class MyGame():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.done_level = pygame.QUIT
+                    self.done_game = True
                 elif event.type == pygame.KEYUP and event.key == pygame.K_q:
                     self.done_level = pygame.QUIT
+                    self.done_game = True
                 elif event.type == pygame.KEYUP and event.key == pygame.K_p:
                     player.print_state()
                 elif player.my_turn and event.type == pygame.KEYUP:
