@@ -8,17 +8,18 @@ import utils
 
 
 # Equipment (powerup) database
-#             Image Name          Damage, ballistic, global, targeting, exp pts
 # Note: first entry is bogus so logic in Player.use_equipment() works
-E_DATA = [[None,                      0,      False,   False,  False,      0 ],   # noqa: E202 E241
-          ["images/dagger32.png",     1,      True,    False,  False,      0 ],   # noqa: E202 E241
-          ["images/firebomb32.png",   2,      True,    False,  False,      0 ],   # noqa: E202 E241
-          ["images/firestorm32.png",  1,      False,   True,   False,      0 ],   # noqa: E202 E241
-          ["images/freezebomb32.png", 1,      True,    False,  False,      0 ],   # noqa: E202 E241
-          ["images/freeze32.png",     1,      False,   True,   False,      0 ],   # noqa: E202 E241
-          ["images/lightning32.png",  1,      False,   False,  True,       0 ],   # noqa: E202 E241
-          ["images/treasure32.png",   0,      False,   False,  False,     500],   # noqa: E202 E241
-          ]
+E_DATA = [
+#        Image Name          Damage, ballistic, global, targeting, exp pts, Requires Slot
+    [None,                      0,      False,   False,  False,      0,       True],   # noqa: E202 E241
+    ["images/dagger32.png",     1,      True,    False,  False,      0,       True],   # noqa: E202 E241
+    ["images/firebomb32.png",   2,      True,    False,  False,      0,       True],   # noqa: E202 E241
+    ["images/firestorm32.png",  1,      False,   True,   False,      0,       True],   # noqa: E202 E241
+    ["images/freezebomb32.png", 1,      True,    False,  False,      0,       True],   # noqa: E202 E241
+    ["images/freeze32.png",     1,      False,   True,   False,      0,       True],   # noqa: E202 E241
+    ["images/lightning32.png",  1,      False,   False,  True,       0,       True],   # noqa: E202 E241
+    ["images/treasure32.png",   0,      False,   False,  False,     500,      False],  # noqa: E202 E241
+]
 E_NONE = 0     # Note: bogus entry for "No equpment"
 E_DAGGER = 1
 E_FIRE_BOMB = 2
@@ -26,8 +27,9 @@ E_FIRESTORM = 3
 E_FREEZE_BOMB = 4
 E_FREEZE_STORM = 5
 E_LIGHTNING = 6
+E_TREASURE = 7
 # TODO other equipment
-E_MAX = 6
+E_MAX = 8
 
 E_IMAGE = 0
 E_DAMAGE = 1
@@ -35,6 +37,7 @@ E_BALLISTIC = 2
 E_GLOBAL = 3
 E_TARGETING = 4
 E_EXP_PTS = 5
+E_SLOT = 6
 
 
 class Equipment:
@@ -70,8 +73,8 @@ class Equipment:
 class EquipmentList:
     """A player's equipment list"""
     # def __init__(self, starting_equip=[E_FIRESTORM, E_NONE, E_NONE, E_NONE]):   # DEBUG
-    # def __init__(self, starting_equip=[E_FIRESTORM, E_DAGGER, E_NONE, E_NONE]):   # DEBUG
-    def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
+    def __init__(self, starting_equip=[E_FREEZE_STORM, E_FREEZE_STORM, E_DAGGER, E_DAGGER]):   # DEBUG
+    #def __init__(self, starting_equip=[E_DAGGER, E_NONE, E_NONE, E_NONE]):
         self.e_list = starting_equip
         self.db = E_DATA
         self.loc = None       # ie a slot number in e_list (0-3)
@@ -83,6 +86,12 @@ class EquipmentList:
         # Verify e is a valid eqipment type
         if not self.valid(e):
             return False
+
+        print(f"EquipmentList {e=}")
+
+        if E_DATA[e][E_SLOT] == False:
+            # if the item does not require a slot (Treasure)
+            return True
 
         for n in range(self.length()):
             if self.e_list[n] == E_NONE:
@@ -106,6 +115,11 @@ class EquipmentList:
         if n is None:
             n = self.loc
         return self.e_list[n]
+
+    def get_image_name(self, n=None):
+        if n is None:
+            n = self.loc
+        return self.db[self.e_list[n]][E_IMAGE]
 
     def rm(self, n=None):
         if n is None:

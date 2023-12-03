@@ -54,12 +54,16 @@ class Player(mysprite.BaseSprite):
 
         self.level_limits = [10000, 5200, 2000, 800]
 
+    def drop_item(self):
+        self.equipmentl.rm()
+        self.mode = self.PM_MOVE
+
     # Player changepos()
     def changepos(self, key):
         # ---------------------------------------------------
         if self.key_is_equip(key):
-            # self.use_equipment(key)
-            if not self.key_is_equip(key):  # Note this check is redundant if key_is_equip() is ALWAYS called first
+            # Note this check is redundant if key_is_equip() is ALWAYS called first
+            if not self.key_is_equip(key):
                 return
             self.equipmentl.loc = key - pygame.K_1
             if utils.VERBOSE:
@@ -67,8 +71,10 @@ class Player(mysprite.BaseSprite):
                 # print( "Player.use_equipment(): equipmentl = " +str(self.equipmentl) )
             e = self.equipmentl.get_e_type()
             if e:
-                # If we got here, then the eqipment location is something other than none
-                print(f"Player.use_equipment({key}): equipmentl[{self.equipmentl.loc}] = {e}")
+                # If we got here, then the eqipment location is something
+                # other than none
+                name = self.equipmentl.get_image_name()
+                print(f"Player.use_equipment({key}): equipmentl[{self.equipmentl.loc}] = {e}, {name}")
                 if self.equipmentl.ballistic():
                     self.mode = self.PM_BALLISTIC_SELECT
                     self.weapon = e
@@ -129,10 +135,15 @@ class Player(mysprite.BaseSprite):
                         self.change_x = l.rect.x - self.rect.x
                         self.change_y = l.rect.y - self.rect.y
                     print("exit to ladder:")
-                    print("   dx,dy  =: {self.dx},{self.dy}")
-                    print("   ladder =: {l.rect.x},[l.rect.y]")
-                    print("   change =: {self.change_x},{self.change_y}")
+                    #print("   dx,dy  =: {self.dx},{self.dy}")
+                    #print("   ladder =: {l.rect.x},[l.rect.y]")
+                    #print("   change =: {self.change_x},{self.change_y}")
                     # self.my_turn = False
+                else:
+                    print(f"Shortcut to ladder not allowed, still {len(self.monster_list)} monsters left")
+            elif pygame.K_d == key:
+                print('Select eqipment item to drop first')
+
         # ---------------------------------------------------
         elif self.PM_BALLISTIC_SELECT == self.mode:
             if pygame.K_ESCAPE == key:
@@ -141,6 +152,9 @@ class Player(mysprite.BaseSprite):
                 self.change_x = 0
                 self.change_y = 0
                 print("Returning to MOVE mode, from Ballistic mode")
+
+            elif pygame.K_d == key:
+                self.drop_item()
 
             elif self.key_is_move(key):
                 ballistic_delta = 10
@@ -164,6 +178,7 @@ class Player(mysprite.BaseSprite):
                     self.weapon, self.walls, self.monsters,
                     ballistic_change_x, ballistic_change_y, self)
                 self.ballistic_sprites.add(self.my_ballistic)
+                self.my_ballistic.prn()
 
                 # Decrement the equipmentl
                 self.equipmentl.rm()
@@ -182,7 +197,10 @@ class Player(mysprite.BaseSprite):
         elif self.PM_TARGETING == self.mode:
             # TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
             print("Player Target Mode")
-            if pygame.K_ESCAPE == key:
+            if pygame.K_d == key:
+                self.drop_item()
+
+            elif pygame.K_ESCAPE == key:
                 print("n_targeted_monster = " + str(self.n_target_monster))
                 self.mode = self.PM_MOVE
                 self.weapon = None     # TODO: Do we need to define a mele weapon type??
@@ -193,7 +211,7 @@ class Player(mysprite.BaseSprite):
                 self.n_target_monster = None
                 print("Returning to MOVE mode, from target mode")
 
-            if key in [pygame.K_j, pygame.K_k, pygame.K_DOWN, pygame.K_UP]:
+            elif key in [pygame.K_j, pygame.K_k, pygame.K_DOWN, pygame.K_UP]:
                 N = len(self.monster_list)
                 print("Targeting N monsters = " + str(N))
                 if N == 0:
@@ -224,11 +242,12 @@ class Player(mysprite.BaseSprite):
                     self.monster_list[self.n_target_monster].targeted = True
                     print(f"Targeting (up) selected monster {self.n_target_monster}")
 
-            if pygame.K_RETURN == key:
+            elif pygame.K_RETURN == key:
                 if self.n_target_monster is not None:
                     # self.monster_list[self.n_target_monster].targeted = False
                     print(f"Disabling targeted monster {self.n_target_monster}")
-                    self.do_damage(self.monster_list[self.n_target_monster], 0, self.equipmentl.damage())  # no stun
+                    monster = self.monster_list[self.n_target_monster]
+                    self.do_damage(monster, 0, self.equipmentl.damage()) # no stun
                     self.mode = self.PM_MOVE
                     self.weapon = None     # TODO: Do we need to define a mele weapon type??
                     self.n_target_monster = None
@@ -240,15 +259,28 @@ class Player(mysprite.BaseSprite):
         elif self.PM_GLOBAL == self.mode:
             # TODO: figure out keys (or mouse) for targeting: maybe 'n','p' for next,prev; and 'return' for commit?
             print("Player Global Area Mode")
-            if pygame.K_ESCAPE == key:
+            if pygame.K_d == key:
+                self.drop_item()
+
+            elif pygame.K_ESCAPE == key:
                 self.mode = self.PM_MOVE
                 self.weapon = None     # TODO: Do we need to define a mele weapon type??
                 self.equipmentl.loc = None
                 print("Returning to MOVE mode, from target mode")
 
             elif pygame.K_RETURN == key:
-                for n in range(len(self.monster_list)):
-                    self.do_damage(self.monster_list[n], 0, self.equipmentl.damage())  # no stun
+                # Since the monster_list gets modified inside do_damage(), we
+                # can't just do a for loop.
+                n = 0
+                while n < len(self.monster_list):
+                    print(f"Monster {n}, {self.monster_list[n].fname}")
+                    monster = self.monster_list[n]
+                    if self.do_damage(monster, 0, self.equipmentl.damage()):  # no stun
+                        # the current monster was removed from the list
+                        pass
+                    else:
+                        n += 1
+
                 self.mode = self.PM_MOVE
                 self.weapon = None     # TODO: Do we need to define a mele weapon type??
 
@@ -293,24 +325,6 @@ class Player(mysprite.BaseSprite):
             self.rect.x += self.change_x
             self.rect.y += self.change_y
 
-            # Did this update cause us to hit a wall?
-            block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
-            for block in block_hit_list:
-                # Reset our position based on the left/right of the object.
-                if self.change_x > 0:
-                    self.rect.right = block.rect.left
-                elif self.change_x < 0:
-                    self.rect.left = block.rect.right
-
-                # Reset our position based on the top/bottom of the object.
-                if self.change_y > 0:
-                    self.rect.bottom = block.rect.top
-                elif self.change_y < 0:
-                    self.rect.top = block.rect.bottom
-
-                self.my_turn = True
-                return
-
             # Check and see if we hit any Monsters
             block_hit_list = pygame.sprite.spritecollide(self, self.monsters, False)
             for block in block_hit_list:
@@ -332,7 +346,26 @@ class Player(mysprite.BaseSprite):
                         self.rect.top = block.rect.bottom
 
                     # Do the damage
-                    self.do_damage(block, self.stun_rate)
+                    if self.do_damage(block, self.stun_rate):
+                        block.kill()
+
+            # Did this update cause us to hit a wall?
+            block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+            for block in block_hit_list:
+                # Reset our position based on the left/right of the object.
+                if self.change_x > 0:
+                    self.rect.right = block.rect.left
+                elif self.change_x < 0:
+                    self.rect.left = block.rect.right
+
+                # Reset our position based on the top/bottom of the object.
+                if self.change_y > 0:
+                    self.rect.bottom = block.rect.top
+                elif self.change_y < 0:
+                    self.rect.top = block.rect.bottom
+
+                self.my_turn = True
+                return
 
             # Check and see if we hit the ladder
             block_hit_list = pygame.sprite.spritecollide(self, self.ladders, False)
@@ -344,12 +377,17 @@ class Player(mysprite.BaseSprite):
             self.change_y = 0
 
             if self.powerups:  # TODO require powerups as part of __init__(), so we don't need this test?
-                block_hit_list = pygame.sprite.spritecollide(self, self.powerups, True)
+                block_hit_list = pygame.sprite.spritecollide(self, self.powerups, False)
                 for block in block_hit_list:
-                    # if utils.VERBOSE:
-                    #    print("adding " +str(block.exp_pts) +" exp pts from powerup " +str(type(block)) +" = etype = " +str(block.e_type))
-                    self.exp_pts += block.exp_pts
-                    self.equipmentl.add(block.equip.e_type)
+                    if self.equipmentl.add(block.equip.e_type):
+                        self.exp_pts += block.exp_pts
+                        if utils.VERBOSE:
+                            print(f"adding {block.exp_pts} exp pts from powerup etype = {block.e_type}")
+                        #pygame.sprite.spritecollide(self, pygame.sprite.Group(block), True)
+                        self.powerups.remove(block)
+                    else:
+                        if utils.VERBOSE:
+                            print(f"Failed to Add {block.exp_pts} exp pts from powerup etype = {block.e_type}")
                     print(self.equipmentl.get_list())
 
         elif self.PM_BALLISTIC_SELECT == self.mode:
@@ -383,6 +421,7 @@ class Player(mysprite.BaseSprite):
                 break
 
     def do_damage(self, monster, stun_rate, damage=None):
+        "Return True if monster was killed"
         if damage is None:
             damage = self.damage
         monster.wound(self.damage, stun_rate)
@@ -402,6 +441,8 @@ class Player(mysprite.BaseSprite):
                             del self.monster_list[n]
                             break
                     monster.kill()
+                    return True
+        return False
 
     def print_state(self):
         print("Player: print_state()")

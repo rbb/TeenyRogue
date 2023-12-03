@@ -16,15 +16,13 @@ Tasks
       - Maybe add a half tile frame?
    - Change sprites when they are stunned
 - Features
-   o Use 'p' key to print current game state?
    - Implement "Bomba" (ballistic monsters) firing.
-   * 'E' When no monsters goes to ladder
    - Daggers should be 3, and show count in equipment status
-   * blit hit points of monters on their sprites
    - Leveling up
       - Graphics
       - Level up bonuses
          - show levelup bonus status (ie vampire, +damage on firestorm, etc)
+
 - Bugs
    - Fix monsters going through diagnal walls
       - Original doesn't seem to have diagnal walls, always a right angle
@@ -33,12 +31,10 @@ Tasks
       - should not continue to take damage, until they re-animate
       * Allow player to walk over zombie monsters (ie skeletons)
       - Allow other (living) monsters to walk over zombie monsters (ie skeletons)
-      - When player or another monster is on top of a zombie, it should not resurect
-   - Fix monsters going into walls (only at edges)????
-   - Prevent monsters from being on ladder
+      * When player or another monster is on top of a zombie, it should not resurect
    - Fix `GameMap.is_valid()` for a diagnal is the only exit from a tile
    - Fix `GameMap.is_valid()` if monsters can't be reached without crossing ladder
-   - Fix wrong sprite shown when throwing daggers (maybe other things too?)
+
 - Misc
    - Refactor, so that there is some sort of world state variable that can be passed around, 
      instead of putting a bunch of stuff in the 'player' variable
