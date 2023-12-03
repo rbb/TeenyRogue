@@ -394,19 +394,25 @@ class Monster(BaseSprite):
 
     def find_move(self):
         """ The logic for the moster movement (AI) """
+        x, y = self.get_map_pos()
+        px, py = self.player.get_map_pos()
+        player_overlap = (px == x and py == y)
+        print(f"Monster.find_move: {player_overlap=}")
+        
         # First, check to see if we're dead, waiting to be resurected
         if self.hit_pts == 0:
             self.resurection_cnt -= 1
             print(f"Monster.find_move: {self.resurection_cnt=}")
             if self.resurection_cnt <= 0:
-                self.heal(self.resurection_pts)
+                if player_overlap:
+                    self.resurection_cnt += 1
+                else:
+                    self.heal(self.resurection_pts)
             else:
                 return
 
         # First, try to move towards the player
         collision = False
-        x, y = self.get_map_pos()
-        px, py = self.player.get_map_pos()
         dx = px - x
         dy = py - y
         d = abs(dy) - abs(dx)  # d > 1 means y larger, d < 0 means x larger
