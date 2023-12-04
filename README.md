@@ -1,47 +1,33 @@
+# TeenyRogue
 
-Tasks
--------------------------
-* Fix moving into walls lets monsters move
-* targeting mechanism for non-ballistic powerups
-   * highlight selected monster
-   * inflict the damage
-* Highlight selected powerups (ie when in targeting or ballistic mode, show the powerup selected)
-- Improve graphics
-   - Torches on walls
-   - Shadows of walls
-   - Original or free artwork for sprites
-   - Flash screen on hits
-   - animate monster deaths (little explosion? Fade to black? Fade to alpha?)
-   - Animate each monster/player move
-      - Maybe add a half tile frame?
-   - Change sprites when they are stunned
-- Features
-   - Implement "Bomba" (ballistic monsters) firing.
-   - Daggers should be 3, and show count in equipment status
-   - Leveling up
-      - Graphics
-      - Level up bonuses
-         - show levelup bonus status (ie vampire, +damage on firestorm, etc)
 
-- Bugs
-   - Fix monsters going through diagnal walls
-      - Original doesn't seem to have diagnal walls, always a right angle
-      - Maybe just skip levels generated with diagonal walls?
-   - zombie monsters (ie skeletons)
-      - should not continue to take damage, until they re-animate
-      * Allow player to walk over zombie monsters (ie skeletons)
-      - Allow other (living) monsters to walk over zombie monsters (ie skeletons)
-      * When player or another monster is on top of a zombie, it should not resurect
-   - Fix `GameMap.is_valid()` for a diagnal is the only exit from a tile
-   - Fix `GameMap.is_valid()` if monsters can't be reached without crossing ladder
+This is a clone of an iOS game, TinyRogue. 
 
-- Misc
-   - Refactor, so that there is some sort of world state variable that can be passed around, 
-     instead of putting a bunch of stuff in the 'player' variable
-   - Improve hit points to level array accuracy
-   - Improve monster AI 
-      - Ghosts should prefer going into walls
-      - Shooters shoud perfer to not line up with player, or maybe at 50% chance?
+The original developer,  [Ravenous Games](http://ravenousgames.com), doesn't
+seem to be maintaining it anymore. And their website doesn't seem to work.
+[Here](https://mobilesyrup.com/2015/12/20/game-of-the-week-tiny-rogue-ultra-difficult-turn-based-combat/)
+is an article describing it.
+
+While the original ran on iOS, this is a Python version, that uses pygame.
+
+The code is a bit of a mess at the moment. This was my first time making a game.
+So the architecture of it is quite crap.
+
+# Installation
+
+    ```
+    # Recommended: Create a virtual environment:
+    python -m venv env
+    . env/bin/activate
+
+    # Install
+    pip install -e .
+    ```
+    
+
+
+# Original Game Notes
+
 
 Monster     Exp Pts
 -------     -------
@@ -62,13 +48,6 @@ Level 2: <=800
 Level 3: <=2100
 Level 4: >5175,  <=5375
 
-Congratulations! You Have Died
-Quest Completed
-Enemies Killed
-Treasures Found
-Dungeon Level
-Hero Level
-Total Score (exp pts)
 
 fast, rat 200
 ghost, fast, troll 550
