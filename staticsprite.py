@@ -208,17 +208,7 @@ class Status(pygame.sprite.Sprite):
                 self.equipment_images.append(None)
 
         self.player = player
-
-        self.max_level = 4
-        self.level_images = []
-        for n in range(self.max_level):
-            fname = f'images/level_{n + 1}.png'
-            # self.level_images.append( pygame.image.load(fname).convert_alpha() )
-            self.level_images.append(pygame.image.load(fname))
         self.level = level
-        # self.new_level()
-        # self.image.blit(self.level_images[self.level], (x,y) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
-
         self.update()
 
     def get_map_pos(self):
@@ -285,32 +275,24 @@ class Status(pygame.sprite.Sprite):
                 self.image.blit(
                     self.equipment_images[self.player.equipmentl.get_e_type(n)],
                     (x, y),
-                    # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
                 )
 
-        # self.level = self.player.level -1
-        # if self.level > self.max_level -1:
-        #    self.level = self.max_level -1
-        # self.image.blit(self.level_images[self.level], (5, utils.STATUS_H/2 -5) ) # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
         plevel_label = self.font.render("P:" + str(self.player.level), 1, utils.GREENISH)
         self.image.blit(
             plevel_label,
             (20, utils.STATUS_H / 2)
-            # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
         )
 
         level_label = self.font.render("L:" + str(self.level), 1, utils.GREENISH)
         self.image.blit(
             level_label,
             (utils.SCREEN_W / 3, utils.STATUS_H / 2)
-            # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
         )
 
         score_label = self.font.render(str(self.player.exp_pts), 1, utils.GREENISH)
         self.image.blit(
             score_label,
             (2 * utils.SCREEN_W / 3, utils.STATUS_H / 2),
-            # , area=self.heart.get_rect(), special_flags = BLEND_RGBA_ADD)
         )
 
 
