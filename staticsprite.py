@@ -367,3 +367,54 @@ class Ladder(pygame.sprite.DirtySprite):
 
     def get_map_pos(self):
         return (self.rect.x / utils.SCALE, self.rect.y / utils.SCALE)
+
+
+class DeadBanner():
+    def __init__(self, player_level, map_level, score):
+        self.font = pygame.font.SysFont("couriernew", 12, bold=True)
+        self.banner = pygame.Surface([217, 307]) # TODO: get size from PNG
+        #self.banner.fill(utils.PURPLE)
+        self.banner.blit(
+            pygame.image.load('images/dead.png'),
+            (0, 0),
+        )
+
+        self.text("Congratulations!", (53, 92))
+        self.text("You have died!", (58, 104))
+        #banner.blit(
+        #    dead_font.render(
+        #        "You have died!", 1, utils.YELLOW),
+        #    (51, 112),
+        #)
+        h = utils.SCREEN_H /2 - 30
+        dh = 12
+        self.text(f"Player Level:  {player_level}", (40, h))
+        self.text(f"Dungeon Level: {map_level}", (40, h + dh))
+        score_font = pygame.font.SysFont("couriernew", 20, bold=True)
+        self.banner.blit(
+            score_font.render("Score:", 1, utils.YELLOW),
+            (75, 218),
+        )
+        score_x = 87
+        if score >= 1000000:
+            score_font = pygame.font.SysFont("couriernew", 14, bold=True)
+            score_x = 70
+        elif score >= 10000:
+            score_font = pygame.font.SysFont("couriernew", 18, bold=True)
+            score_x = 73
+        elif score >= 1000:
+            score_font = pygame.font.SysFont("couriernew", 18, bold=True)
+            score_x = 80
+        self.banner.blit(
+            score_font.render(f"{score:,}", 1, utils.YELLOW),
+            (score_x, 238),
+        )
+        self.text("Press Any Key to Quit",
+                  (33, h + 4 * dh),
+                  utils.RED,
+        )
+        return
+
+    def text(self, s, pos, color=utils.YELLOW):
+        self.banner.blit(
+            self.font.render(s, 1, color), pos)

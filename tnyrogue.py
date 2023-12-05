@@ -394,6 +394,17 @@ class MyGame():
         print(f"Player Level:   {self.player.level}")
         print(f"Dungeon Level:  {self.level}")
 
+        # Debug: set the exp_pts, to test the dead_banner score printing
+        #self.player.exp_pts = 1000200
+        #self.player.exp_pts =  999999
+        #self.player.exp_pts =   10999
+        #self.player.exp_pts =    1000
+        #self.player.exp_pts =     123
+        dead_banner = staticsprite.DeadBanner(
+                self.player.level, self.level, self.player.exp_pts)
+        self.screen.blit(dead_banner.banner, (50, 50))
+        pygame.display.update()
+
         self.done_game = False
         while not self.done_game:
             for event in pygame.event.get():
