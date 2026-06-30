@@ -10,6 +10,9 @@ monorepo, no backend/web services, no database). Entry point: `tnyrogue.py`
 
 This repo is one desktop game; there are no background services.
 
+- Dependencies (`pygame`, `numpy`) are installed into the `env/` virtualenv at the
+  repo root. Activate with `. env/bin/activate`, or invoke directly via
+  `env/bin/python` / `env/bin/tnyrogue`.
 - Run the game: `python tnyrogue.py` (or the installed `tnyrogue` console script).
   Must be run from the repo root because all asset paths are relative (e.g.
   `images/player32.png`).
@@ -38,6 +41,16 @@ a committed/required step.
 
 ### Gotchas
 
+- Demoing/recording gameplay: the game opens its Pygame window with
+  `pygame.HWSURFACE`, and the standard screen recorder does NOT reliably capture
+  its live frame updates (recordings can look like a frozen first frame even
+  though the game is responding). Discrete screenshots and direct `ffmpeg`
+  `x11grab` of the window region DO capture updates correctly. To record working
+  gameplay, grab the window region directly, e.g. find the window with
+  `DISPLAY=:1 xdotool search --pid <game_pid>`, get its geometry, then
+  `ffmpeg -f x11grab -framerate 15 -video_size <W>x<H> -i :1+<X>,<Y> out.mp4`
+  while driving moves with `xdotool key --window <wid> Right`. The game log also
+  prints `Player Turn` per accepted keypress, useful to confirm input.
 - The game writes `map_attempts.txt` (map-generation stats) to the CWD as a side
   effect — this is output, not required input.
 - `sheet.py` is dead code (imports a missing `constants` module) and is not used
